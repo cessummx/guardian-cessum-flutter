@@ -1,0 +1,84 @@
+name: cessum_app
+description: "Aplicacion movil del Aula CESSUM."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.5
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  cupertino_icons: ^1.0.8
+  http: ^1.2.0
+  image_picker: ^1.1.2
+  shared_preferences: ^2.2.2
+  google_fonts: ^6.2.1
+  webview_flutter: ^4.10.0
+  webview_flutter_android: ^4.0.0
+  url_launcher: ^6.3.0
+  connectivity_plus: ^6.0.5
+  package_info_plus: ^8.0.0
+  flutter_svg: ^2.0.10
+  google_sign_in: ^7.2.0
+  google_sign_in_web: ^1.1.3
+  share_plus: ^10.1.4
+  mobile_scanner: ^7.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.1
+  flutter_native_splash: ^2.4.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/icon/
+
+  # (9-sep) MONTSERRAT EMPAQUETADA EN LA APP.
+  # Va aquí, en 'fonts', y NO en 'assets': si se declarara como asset, los
+  # archivos viajarían con la app pero Flutter no los registraría como
+  # tipografía y 'fontFamily: Montserrat' no encontraría nada.
+  #
+  # Se empaquetan cuatro pesos y no la familia completa: Montserrat trae 18
+  # con sus itálicas, y cada uno se descarga en el navegador del usuario.
+  # Con estos cuatro se cubre todo lo que usa la app.
+  #
+  # Se usan los archivos ESTÁTICOS de la carpeta 'static', no el
+  # VariableFont_wght: Flutter lo soporta a medias y lo dibuja en su peso
+  # base, que es exactamente el problema que ya se tuvo en portada.php,
+  # donde el texto salía delgado y hubo que engordar el trazo a mano.
+  fonts:
+    - family: Montserrat
+      fonts:
+        - asset: assets/fonts/Montserrat-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/Montserrat-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Montserrat-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Montserrat-Bold.ttf
+          weight: 700
+
+flutter_launcher_icons:
+  android: true
+  ios: false
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#C8202F"
+  adaptive_icon_foreground: "assets/icon/icon.png"
+  min_sdk_android: 21
+
+flutter_native_splash:
+  color: "#FFFFFF"
+  image: assets/icon/icon.png
+  android: true
+  ios: false
+  android_12:
+    color: "#FFFFFF"
+    image: assets/icon/icon.png
+    icon_background_color: "#C8202F"

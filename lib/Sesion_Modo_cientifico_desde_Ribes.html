@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sesión · El modo científico desde Ribes · Metodología III</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,400;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --tinta:#14263B; --azul:#1E5AA7; --azul-osc:#123C72; --azul-claro:#DEEAF7;
+    --niebla:#E9EEF4; --panel:#FFFFFF; --vara:#C77D1F; --vara-claro:#FBF3E6;
+    --linea:#C6D2DF; --verde:#2E7D5B; --verde-claro:#E4F1EA; --rojo:#B3452F; --rojo-claro:#F6E6E1;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{font-family:'Montserrat',sans-serif;color:var(--tinta);background:var(--niebla);overflow:hidden}
+  #prog{position:fixed;top:0;left:0;height:5px;background:var(--vara);z-index:90;transition:width .3s ease;border-radius:0 3px 3px 0}
+  .escenario{height:100vh;display:flex;flex-direction:column}
+  .lienzo{flex:1;display:flex;align-items:center;justify-content:center;padding:2.5vh 3vw}
+  .slide{
+    width:min(1180px,100%);max-height:94%;overflow:auto;
+    background:var(--panel);border:1px solid var(--linea);border-radius:16px;
+    padding:clamp(26px,4vw,54px);box-shadow:0 10px 34px rgba(20,38,59,.10);
+    animation:aparecer .35s ease both;
+  }
+  @keyframes aparecer{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.slide{animation:none}}
+  .slide::-webkit-scrollbar{width:10px}
+  .slide::-webkit-scrollbar-thumb{background:var(--linea);border-radius:6px}
+  .barra{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:10px 22px;background:var(--panel);border-top:2px solid var(--linea);
+    font-size:.9rem;color:#5B6A7C;
+  }
+  .barra b{color:var(--azul-osc)}
+  .kicker{
+    display:inline-block;font-size:.9rem;font-weight:700;color:var(--vara);
+    border:2px solid var(--vara);border-radius:999px;padding:4px 16px;margin-bottom:18px;
+  }
+  h1{font-weight:800;color:var(--azul-osc);font-size:clamp(2rem,5vw,3.4rem);line-height:1.06;margin-bottom:16px}
+  h2{font-weight:800;color:var(--azul-osc);font-size:clamp(1.5rem,3.6vw,2.4rem);line-height:1.12;margin-bottom:16px}
+  p,li{font-size:clamp(1.05rem,1.9vw,1.35rem);line-height:1.5}
+  p{margin-bottom:12px;max-width:64ch}
+  .grande{font-size:clamp(1.3rem,2.6vw,1.8rem);font-weight:700}
+  .destello{color:var(--vara)}
+  .sub{color:#5B6A7C;font-style:italic;font-size:clamp(.95rem,1.6vw,1.15rem)}
+  .cita{
+    font-weight:800;font-size:clamp(1.35rem,2.9vw,2rem);line-height:1.26;color:var(--azul-osc);
+    border-left:7px solid var(--vara);padding-left:20px;margin:18px 0;background:var(--vara-claro);
+    border-radius:0 12px 12px 0;padding-top:14px;padding-bottom:14px;padding-right:16px;
+  }
+  .nota{
+    margin-top:16px;border-left:6px solid var(--azul);background:var(--azul-claro);
+    border-radius:0 10px 10px 0;padding:14px 18px;font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.5;
+  }
+  .nota.ok{border-color:var(--verde);background:var(--verde-claro)}
+  .nota.warn{border-color:var(--vara);background:var(--vara-claro)}
+  .malla{display:grid;gap:12px;margin-top:10px}
+  .malla.dos{grid-template-columns:repeat(auto-fit,minmax(320px,1fr))}
+  .malla.tres{grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
+  .malla.cuatro{grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+  .tarjeta{background:var(--niebla);border:2px solid var(--linea);border-radius:12px;padding:14px 16px}
+  .tarjeta h3{font-size:clamp(1rem,1.7vw,1.2rem);color:var(--azul-osc);margin-bottom:6px}
+  .tarjeta p{font-size:clamp(.9rem,1.5vw,1.08rem);margin:0}
+  .tarjeta.acento{border-color:var(--vara);background:var(--vara-claro)}
+  .tarjeta.verde{border-color:var(--verde);background:var(--verde-claro)}
+  .tarjeta.roja{border-color:var(--rojo);background:var(--rojo-claro)}
+  .btn{
+    font:inherit;font-weight:700;font-size:clamp(.9rem,1.5vw,1.05rem);
+    border:2px solid var(--azul-osc);background:var(--azul-osc);color:#fff;
+    border-radius:10px;padding:9px 16px;cursor:pointer;
+  }
+  .btn.ghost{background:var(--panel);color:var(--azul-osc)}
+  .chip{
+    font:inherit;font-weight:600;font-size:clamp(.85rem,1.4vw,1rem);
+    border:2px solid var(--linea);background:var(--panel);color:var(--tinta);
+    border-radius:999px;padding:7px 14px;cursor:pointer;transition:border-color .15s;
+  }
+  .chip:hover:not(:disabled){border-color:var(--azul)}
+  .chip:disabled{cursor:default}
+  .chip.bien{background:var(--verde-claro);border-color:var(--verde);color:var(--verde)}
+  .chip.mal{background:var(--rojo-claro);border-color:var(--rojo);color:var(--rojo)}
+  .chip.apagado{opacity:.45}
+  .fb{display:none;margin-top:14px;font-size:clamp(1rem,1.8vw,1.2rem);line-height:1.5;
+      border-radius:10px;padding:13px 16px}
+  .fb.on{display:block}
+  .fb.bien{background:var(--verde-claro);border-left:6px solid var(--verde)}
+  .fb.mal{background:var(--rojo-claro);border-left:6px solid var(--rojo)}
+  svg text{font-family:'Montserrat',sans-serif}
+  .figura{display:flex;justify-content:center;margin:10px 0}
+  .figura svg{width:100%;max-width:820px;height:auto}
+  .num-carac{
+    display:inline-grid;place-items:center;width:56px;height:56px;border-radius:50%;
+    background:var(--azul-osc);color:#fff;font-weight:800;font-size:1.6rem;margin-right:14px;vertical-align:middle;
+  }
+  /* Zoom + Aula */
+  #zoombar{display:flex;align-items:center;gap:6px}
+  #zoombar button{width:34px;height:34px;border-radius:50%;border:2px solid var(--azul-osc);
+    background:var(--panel);color:var(--azul-osc);font-weight:800;font-size:1.05rem;cursor:pointer}
+  #zoombar span{font-weight:700;color:var(--azul-osc);min-width:46px;text-align:center}
+  #aulaBtn{font:inherit;font-weight:800;border:2px solid var(--vara);background:var(--vara);color:#fff;
+    border-radius:999px;padding:7px 18px;cursor:pointer;font-size:.95rem}
+  #aulaPanel{position:fixed;inset:0;background:rgba(18,32,42,.55);z-index:100;display:none;
+    align-items:center;justify-content:center;padding:3vh 3vw}
+  #aulaPanel.abierto{display:flex}
+  .aula-caja{width:min(980px,100%);max-height:92vh;overflow:auto;background:var(--panel);
+    border-radius:16px;padding:22px 26px;box-shadow:0 14px 44px rgba(0,0,0,.3)}
+  .aula-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+  .aula-tab{font:inherit;font-weight:700;font-size:.95rem;border-radius:999px;padding:8px 18px;cursor:pointer;
+    border:2px solid var(--linea);background:var(--niebla);color:var(--tinta)}
+  .aula-tab.activa{background:var(--azul-osc);border-color:var(--azul-osc);color:#fff}
+  .aula-cerrar{margin-left:auto;font:inherit;font-weight:800;border:none;background:none;
+    color:var(--rojo);font-size:1.4rem;cursor:pointer;line-height:1}
+  .fila-al{display:flex;align-items:center;gap:10px;padding:7px 10px;border-bottom:1px solid var(--linea);font-size:.95rem}
+  .fila-al:nth-child(even){background:var(--niebla)}
+  .fila-al .nom{flex:1;font-weight:600}
+  .fila-al .id{color:#7A8898;font-size:.8rem;min-width:70px}
+  .mini{font:inherit;font-weight:700;font-size:.8rem;border-radius:8px;padding:5px 10px;cursor:pointer;
+    border:2px solid var(--linea);background:var(--panel)}
+  .mini.p{border-color:var(--verde);color:var(--verde)} .mini.p.on{background:var(--verde);color:#fff}
+  .mini.a{border-color:var(--rojo);color:var(--rojo)} .mini.a.on{background:var(--rojo);color:#fff}
+  .mini.s{border-color:var(--azul);color:var(--azul)}
+  .mini.c{border-color:var(--vara);color:var(--vara)}
+  .pts{font-weight:800;color:var(--azul-osc);min-width:66px;text-align:right;font-size:.9rem}
+  .ruleta-zona{text-align:center;padding:18px 0}
+  #ruletaNombre{font-weight:800;font-size:clamp(1.4rem,3.4vw,2.3rem);color:var(--azul-osc);
+    min-height:2.6em;display:flex;align-items:center;justify-content:center;
+    border:3px dashed var(--linea);border-radius:14px;padding:12px 18px;margin:14px 0}
+  #ruletaNombre.elegido{border-style:solid;border-color:var(--vara);background:var(--vara-claro)}
+  .aula-nota{font-size:.85rem;color:#7A8898;margin-top:10px}
+</style>
+</head>
+<body>
+<div id="prog"></div>
+<div class="escenario">
+  <div class="lienzo"><div class="slide" id="slide"></div></div>
+  <div class="barra">
+    <div style="display:flex;align-items:center;gap:16px">
+      <div><b>Metodología III · ITSON</b> · El modo científico (Ribes)</div>
+      <div id="zoombar">
+        <button id="zMenos" title="Reducir (tecla -)">−</button>
+        <span id="zVal">100%</span>
+        <button id="zMas" title="Aumentar (tecla +)">+</button>
+      </div>
+    </div>
+    <div id="tramo" style="color:var(--vara);font-weight:700"></div>
+    <div style="display:flex;align-items:center;gap:14px">
+      <button id="aulaBtn">Aula</button>
+      <div id="num"></div>
+    </div>
+  </div>
+</div>
+
+<div id="aulaPanel">
+  <div class="aula-caja">
+    <div class="aula-tabs">
+      <button class="aula-tab activa" data-tab="lista">Pase de lista</button>
+      <button class="aula-tab" data-tab="ruleta">Ruleta</button>
+      <button class="aula-tab" data-tab="puntos">Participaciones</button>
+      <button class="aula-cerrar" id="aulaCerrar" title="Cerrar">✕</button>
+    </div>
+    <div id="aulaCuerpo"></div>
+  </div>
+</div>
+
+<script>
+/* ==================== LÁMINAS ==================== */
+
+/* ====== ICONOS SVG (sustituyen emojis) ====== */
+const I = {
+  corte:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="#1E5AA7" stroke-width="2"/><rect x="7" y="7" width="7" height="7" fill="#C77D1F"/><path d="M14 7h3M14 11h3M7 17h10" stroke="#C6D2DF" stroke-width="2" stroke-linecap="round"/></svg>',
+  fierro:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><rect x="4" y="9" width="16" height="6" rx="1" fill="#123C72"/><circle cx="7" cy="12" r="1.6" fill="#fff"/><circle cx="17" cy="12" r="1.6" fill="#fff"/></svg>',
+  goma:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M4 12c0-4 4-6 8-6s8 2 8 6-4 6-8 6-8-2-8-6z" fill="none" stroke="#8FA3B8" stroke-width="2" stroke-dasharray="3 3"/><path d="M8 12c0-2 2-3 4-3s4 1 4 3-2 3-4 3-4-1-4-3z" fill="#C6D2DF"/></svg>',
+  matraz:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M10 3h4v6l5 9a2 2 0 01-1.7 3H6.7A2 2 0 015 18l5-9z" fill="none" stroke="#123C72" stroke-width="2"/><path d="M8 15h8l2.5 4.5H5.5z" fill="#1E5AA7"/></svg>',
+  diana:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><circle cx="12" cy="12" r="9" fill="none" stroke="#2E7D5B" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="#2E7D5B" stroke-width="2"/><circle cx="12" cy="12" r="1.8" fill="#C77D1F"/></svg>',
+  etiqueta:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M3 11l8-8h9v9l-8 8z" fill="none" stroke="#B3452F" stroke-width="2"/><circle cx="16" cy="8" r="1.8" fill="#B3452F"/></svg>',
+  lupa:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><circle cx="11" cy="11" r="6" fill="none" stroke="#123C72" stroke-width="2"/><path d="M15.5 15.5L21 21" stroke="#123C72" stroke-width="2" stroke-linecap="round"/></svg>',
+  mapa:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z" fill="none" stroke="#1E5AA7" stroke-width="2"/><path d="M9 4v14M15 6v14" stroke="#C6D2DF" stroke-width="2"/></svg>',
+  alerta:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M12 3l9 17H3z" fill="none" stroke="#B3452F" stroke-width="2"/><path d="M12 9v5" stroke="#B3452F" stroke-width="2" stroke-linecap="round"/><circle cx="12" cy="17" r="1.1" fill="#B3452F"/></svg>',
+  check:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><circle cx="12" cy="12" r="9" fill="none" stroke="#2E7D5B" stroke-width="2"/><path d="M8 12.5l2.7 2.7L16 9.5" fill="none" stroke="#2E7D5B" stroke-width="2.4" stroke-linecap="round"/></svg>',
+  libreta:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><rect x="5" y="3" width="14" height="18" rx="2" fill="none" stroke="#123C72" stroke-width="2"/><path d="M9 8h6M9 12h6M9 16h4" stroke="#8FA3B8" stroke-width="2" stroke-linecap="round"/></svg>',
+  balanza:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><path d="M12 4v16M6 20h12M4 8h16" stroke="#123C72" stroke-width="2" stroke-linecap="round"/><path d="M4 8l-2 5h4zM20 8l-2 5h4z" fill="none" stroke="#C77D1F" stroke-width="1.8"/></svg>',
+  red:'<svg viewBox="0 0 24 24" style="width:1.15em;height:1.15em;vertical-align:-.2em;margin-right:.35em"><circle cx="6" cy="6" r="2.4" fill="#1E5AA7"/><circle cx="18" cy="8" r="2.4" fill="#1E5AA7"/><circle cx="11" cy="18" r="2.4" fill="#1E5AA7"/><path d="M6 6l12 2M18 8l-7 10M11 18L6 6" stroke="#C6D2DF" stroke-width="1.8"/></svg>'
+};
+
+const S = [
+
+{t:'Portada', h:`
+  <span class="kicker">Unidad I · Sesión</span>
+  <h1>¿Qué hace que algo<br>sea ciencia?</h1>
+  <p class="grande">Cinco casos para trabajarlo, antes de formularlo.</p>
+  <p class="sub">Analizaremos situaciones concretas, identificaremos qué tienen en común y de ahí derivaremos los criterios. El desarrollo conceptual completo está en la Lectura 2 y en las referencias del cierre.</p>`},
+
+{t:'Arranque', h:`
+  <span class="kicker">Ronda relámpago · clasifiquen</span>
+  <h2>${I.lupa}¿A cuáles de estas cinco frases se les puede comprobar algo?</h2>
+  <p class="sub">"Se puede comprobar" = podríamos ir, observar y salir de dudas. Toquen SÍ o NO en cada una.</p>
+  <div id="clasZona" class="malla dos"></div>
+  <div class="marcador-act" id="clasM">Aciertos: 0 de 5</div>
+  <div class="nota warn" id="clasNota" style="display:none"><b>Tres cosas que acaban de descubrir.</b> ① Lo que hace imposible comprobar algo no es el tema, sino que <b>las palabras no están definidas</b>. ② Hay frases que <b>parecen</b> comprobables pero están armadas para que nada las contradiga — ahí está el caso del trauma. ③ Una frase que <b>sí</b> se comprueba puede resultar <b>falsa</b>, y aun así estaba bien hecha.</div>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Ejemplo primero · son las 3 de la mañana</span>
+  <h2><span class="num-carac">1</span>Un bebé está llorando</h2>
+  <div class="figura">
+  <svg viewBox="0 0 820 300">
+    <rect x="0" y="238" width="820" height="62" fill="#DEEAF7"/>
+    <g opacity=".5"><circle cx="86" cy="52" r="20" fill="#C77D1F"/><path d="M60 52h52M86 26v52" stroke="#C77D1F" stroke-width="3"/></g>
+    <rect x="300" y="182" width="220" height="96" rx="14" fill="#8FA3B8"/>
+    <rect x="300" y="182" width="220" height="18" rx="9" fill="#7A8FA5"/>
+    <circle cx="410" cy="132" r="62" fill="#F0D3B4"/>
+    <ellipse cx="352" cy="132" rx="9" ry="13" fill="#F0D3B4"/>
+    <ellipse cx="468" cy="132" rx="9" ry="13" fill="#F0D3B4"/>
+    <path d="M354 112a58 56 0 01112 0 58 58 0 00-112 0z" fill="#8B5E3C"/>
+    <path d="M356 108a56 56 0 01108 0c-14-26-38-38-54-38s-40 12-54 38z" fill="#8B5E3C"/>
+    <path d="M404 72q6-16 16-6-8 2-10 8z" fill="#8B5E3C"/>
+    <ellipse cx="386" cy="126" rx="7" ry="5" fill="#14263B"/>
+    <ellipse cx="434" cy="126" rx="7" ry="5" fill="#14263B"/>
+    <path d="M372 112q14-10 28 0M424 112q14-10 28 0" stroke="#8B5E3C" stroke-width="4" fill="none" stroke-linecap="round"/>
+    <ellipse cx="410" cy="164" rx="24" ry="18" fill="#B3452F"/>
+    <ellipse cx="410" cy="170" rx="12" ry="8" fill="#8E3324"/>
+    <circle cx="358" cy="146" r="13" fill="#E8A9A0" opacity=".65"/>
+    <circle cx="462" cy="146" r="13" fill="#E8A9A0" opacity=".65"/>
+    <g fill="#5BA7D9">
+      <path d="M386 138q-8 22 0 30 8-8 0-30z"/><path d="M380 178q-6 16 0 22 6-6 0-22z"/>
+      <path d="M434 138q8 22 0 30-8-8 0-30z"/><path d="M440 178q6 16 0 22-6-6 0-22z"/>
+    </g>
+    <g stroke="#C77D1F" stroke-width="5" stroke-linecap="round" fill="none" opacity=".85">
+      <path d="M506 78q26-8 30-30M524 118q28 2 40-14M506 158q26 12 30 34"/>
+      <path d="M314 78q-26-8-30-30M296 118q-28 2-40-14M314 158q-26 12-30 34"/>
+    </g>
+    <text x="700" y="60" text-anchor="middle" font-size="34" font-weight="800" fill="#14263B">3:00</text>
+    <text x="700" y="88" text-anchor="middle" font-size="18" fill="#7A8898">de la mañana</text>
+  </svg>
+  </div>
+  <p class="grande">Cuatro personas quieren estudiar ese llanto. Cada una se queda con <span class="destello">una sola cosa</span>:</p>
+  <div class="malla cuatro">
+    <div class="tarjeta"><h3>Acústica</h3><p>qué tan fuerte y qué tan agudo suena</p></div>
+    <div class="tarjeta"><h3>Fisiología</h3><p>cómo late su corazón</p></div>
+    <div class="tarjeta"><h3>Psicología</h3><p>qué pasó antes y qué pasó después</p></div>
+    <div class="tarjeta"><h3>Sociología</h3><p>cómo se cría a los bebés en esa familia</p></div>
+  </div>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Lo que ninguna alcanza</span>
+  <h2>Nadie estudia esa noche completa</h2>
+  <p class="grande">Ninguna estudia <span class="destello">a tu sobrino esa noche</span>, con su cansancio y su pañal mojado.</p>
+  <div class="figura">
+  <svg viewBox="0 0 820 150">
+    <circle cx="410" cy="75" r="46" fill="#F0D3B4" stroke="#C6D2DF" stroke-width="2"/>
+    <ellipse cx="396" cy="70" rx="5" ry="4" fill="#14263B"/><ellipse cx="424" cy="70" rx="5" ry="4" fill="#14263B"/>
+    <ellipse cx="410" cy="94" rx="15" ry="11" fill="#B3452F"/>
+    <path d="M396 78q-5 14 0 19 5-5 0-19M424 78q5 14 0 19-5-5 0-19" fill="#5BA7D9"/>
+    <g stroke="#C6D2DF" stroke-width="2.5" stroke-dasharray="6 5">
+      <path d="M364 75H196M456 75h168M410 29V10M410 121v19"/>
+    </g>
+    <text x="120" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#8FA3B8">decibeles</text>
+    <text x="700" y="80" text-anchor="middle" font-size="17" font-weight="700" fill="#8FA3B8">ritmo cardiaco</text>
+    <text x="410" y="18" text-anchor="middle" font-size="17" font-weight="700" fill="#8FA3B8">qué pasó antes y después</text>
+    <text x="410" y="145" text-anchor="middle" font-size="17" font-weight="700" fill="#8FA3B8">crianza en esa familia</text>
+  </svg>
+  </div>
+  <p>Cada ciencia se lleva una flecha. <b>El bebé completo se queda en medio</b>, y eso no es una falla: es la única forma de trabajar que tiene la ciencia.</p>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Lo que hicieron las cuatro ya tiene nombre</span>
+  <h2>Abstracción analítica</h2>
+  <div class="figura">
+  <svg viewBox="0 0 820 240">
+    <text x="150" y="26" text-anchor="middle" font-size="18" font-weight="800" fill="#7A8898">EL EPISODIO COMPLETO</text>
+    <rect x="34" y="42" width="232" height="150" rx="14" fill="#E9EEF4" stroke="#C6D2DF" stroke-width="2.5"/>
+    <g font-size="15" fill="#5B6A7C">
+      <text x="150" y="72" text-anchor="middle">el volumen del llanto</text>
+      <text x="150" y="96" text-anchor="middle">su pulso acelerado</text>
+      <text x="150" y="120" text-anchor="middle">lo que hizo la mamá</text>
+      <text x="150" y="144" text-anchor="middle">el pañal mojado</text>
+      <text x="150" y="168" text-anchor="middle">el cansancio de las 3 a.m.</text>
+    </g>
+    <path d="M280 117h44" stroke="#C77D1F" stroke-width="4"/>
+    <path d="M318 108l14 9-14 9z" fill="#C77D1F"/>
+    <path d="M344 60h116l-38 46v56l-40 18v-74z" fill="#DEEAF7" stroke="#1E5AA7" stroke-width="3"/>
+    <text x="402" y="212" text-anchor="middle" font-size="16" font-weight="700" fill="#1E5AA7">la decisión</text>
+    <text x="402" y="232" text-anchor="middle" font-size="16" font-weight="700" fill="#1E5AA7">de qué estudiar</text>
+    <path d="M478 117h44" stroke="#C77D1F" stroke-width="4"/>
+    <path d="M516 108l14 9-14 9z" fill="#C77D1F"/>
+    <text x="672" y="26" text-anchor="middle" font-size="18" font-weight="800" fill="#123C72">LO QUE SE ESTUDIA</text>
+    <rect x="548" y="86" width="248" height="62" rx="12" fill="#123C72"/>
+    <text x="672" y="122" text-anchor="middle" font-size="19" font-weight="800" fill="#fff">el volumen del llanto</text>
+    <text x="672" y="176" text-anchor="middle" font-size="15" fill="#7A8898">lo demás no desaparece:</text>
+    <text x="672" y="198" text-anchor="middle" font-size="15" fill="#7A8898">queda fuera de este estudio</text>
+  </svg>
+  </div>
+  <p><b>Abstraer</b> es separar una propiedad de todo aquello con lo que viene mezclada. Eso hicieron las cuatro: cada una seleccionó una propiedad del mismo episodio y trabajó solo con ella.</p>
+  <div class="cita">La ciencia no estudia cosas ni episodios: estudia propiedades que selecciona de ellos.</div>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Por qué no puede ser de otro modo</span>
+  <h2>El episodio concreto no se deja nombrar</h2>
+  <p>Los términos de una ciencia son <b>generales</b>: sirven para muchos casos, no para uno. "Decibeles" vale para cualquier sonido; "frecuencia cardiaca", para cualquier corazón.</p>
+  <p>Pero ese llanto ocurrió <b>una sola vez</b>, con ese bebé, esa madrugada y ese cansancio. En cuanto se le pone un término general, ya se le quitó justamente lo que tenía de irrepetible.</p>
+  <div class="nota"><b>La fórmula técnica:</b> "lo singular no es denotable". Lo irrepetible se vive, se narra y se recuerda; para estudiarlo hay que abstraer propiedades — y eso implica renunciar a una parte.</div>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Ahora ustedes · toquen la respuesta</span>
+  <h2>Los muchachos de la prepa, jugando en la cancha</h2>
+  <p class="sub">Son las 6 de la tarde. ¿Qué se lleva cada ciencia de esa misma tarde? Toquen una opción en cada renglón.</p>
+  <div id="canchaZona"></div>
+  <div class="marcador-act" id="canchaM">Aciertos: 0 de 3</div>
+  <div class="nota ok" id="canchaNota" style="display:none"><b>Y la pregunta que vale 2 puntos:</b> de esa tarde en la cancha — el sudor, la rivalidad con el otro salón, la burla del amigo, las ganas de que los vea alguien — ¿qué es lo que <b>ninguna</b> de las tres alcanza a estudiar?</div>`},
+
+{t:'Caso 1 · el llanto', h:`
+  <span class="kicker">Lo que se sigue de esto</span>
+  <h2>Un niño hace berrinche en el Oxxo</h2>
+  <p class="sub">Cuatro profesionistas están en la fila. Toquen a cada una y vean qué anota en su libreta.</p>
+  <div style="display:flex;gap:9px;flex-wrap:wrap;justify-content:center;margin:12px 0">
+    <button class="chip" data-obs="oNeu">Neuróloga</button>
+    <button class="chip" data-obs="oNut">Nutrióloga</button>
+    <button class="chip" data-obs="oPsi">Psicóloga</button>
+    <button class="chip" data-obs="oTra">Trabajadora social</button>
+  </div>
+  <div id="obsCaption" class="nota" style="display:none"></div>
+  <div class="cita" id="obsCita" style="display:none">Un mismo berrinche. Cuatro libretas distintas. Lo que cada quien escogió estudiar decide qué anota.</div>`},
+
+{t:'Caso 1 · el llanto', q:'Las cuatro vieron el mismo berrinche. ¿Quién anotó "lo que de verdad pasó"?',
+ ops:['Ninguna sola: cada una anotó lo que su disciplina le enseñó a buscar','La mamá, que estaba ahí y lo vio todo sin teorías de por medio','Las cuatro juntas: si sumamos las cuatro libretas tenemos el cuadro completo','La neuróloga, porque lo demás depende del cerebro'],
+ ok:0,
+ exp:'Aquí había dos trampas. La opción 2: la mamá tampoco ve "sin filtro" — mira con el criterio de la vida diaria, que también es escoger. Y la opción 3, la más tentadora: sumar cuatro recortes <b>no reconstruye el episodio</b>, porque cada uno definió sus hechos con reglas distintas. No son cuatro pedazos del mismo rompecabezas: son cuatro rompecabezas.'},
+
+/* ===== 2 ===== */
+{t:'Caso 2 · las palabras', h:`
+  <span class="kicker">Ejemplo primero · una palabra de su carrera</span>
+  <h2><span class="num-carac">2</span>"Estoy deprimido"</h2>
+  <div class="malla dos">
+    <div class="tarjeta"><h3>En el pasillo</h3><p>"Me deprime el clima."<br>"Me deprimió la calificación."<br>"Ando deprimida desde ayer."<br><br>La misma palabra significa tristeza, fastidio, desánimo o aburrimiento. <b>Cambia según la frase.</b></p></div>
+    <div class="tarjeta acento"><h3>En un expediente clínico</h3><p>Criterios escritos, cuántos síntomas, cuánto tiempo, con qué instrumento se evaluó.<br><br>La palabra significa <b>una sola cosa</b>, y esa cosa está escrita en algún lado.</p></div>
+  </div>
+  <div class="cita">La ciencia necesita palabras que signifiquen siempre lo mismo. La vida diaria no.</div>`},
+
+{t:'Caso 2 · las palabras', h:`
+  <span class="kicker">Lo que acaban de ver, en un dibujo</span>
+  <h2>Palabra de goma y palabra de fierro</h2>
+  <div class="figura">
+  <svg viewBox="0 0 820 250">
+    <text x="205" y="26" text-anchor="middle" font-size="20" font-weight="800" fill="#8FA3B8">MULTÍVOCA (de goma)</text>
+    <ellipse cx="205" cy="128" rx="92" ry="52" fill="#E9EEF4" stroke="#8FA3B8" stroke-width="3" stroke-dasharray="7 6"/>
+    <text x="205" y="134" text-anchor="middle" font-size="26" font-weight="800" fill="#14263B">"deprimido"</text>
+    <text x="70" y="70" font-size="17" fill="#7A8898">tristeza</text>
+    <text x="300" y="70" font-size="17" fill="#7A8898">fastidio</text>
+    <text x="52" y="200" font-size="17" fill="#7A8898">aburrimiento</text>
+    <text x="300" y="200" font-size="17" fill="#7A8898">desánimo</text>
+    <path d="M113 84 L150 106 M300 84 L262 106 M120 182 L152 152 M300 182 L262 152" stroke="#C6D2DF" stroke-width="2.5" stroke-dasharray="5 4"/>
+    <text x="205" y="228" text-anchor="middle" font-size="17" font-style="italic" fill="#7A8898">se estira: cada quien la usa distinto</text>
+
+    <line x1="410" y1="20" x2="410" y2="235" stroke="#C6D2DF" stroke-width="2"/>
+
+    <text x="615" y="26" text-anchor="middle" font-size="20" font-weight="800" fill="#123C72">UNÍVOCA (de fierro)</text>
+    <rect x="505" y="86" width="220" height="84" rx="10" fill="#DEEAF7" stroke="#123C72" stroke-width="3"/>
+    <text x="615" y="122" text-anchor="middle" font-size="22" font-weight="800" fill="#123C72">"episodio depresivo"</text>
+    <text x="615" y="150" text-anchor="middle" font-size="16" fill="#123C72">criterios · duración · instrumento</text>
+    <path d="M615 170 L615 196" stroke="#123C72" stroke-width="2.5"/>
+    <rect x="537" y="196" width="156" height="30" rx="6" fill="#123C72"/>
+    <text x="615" y="217" text-anchor="middle" font-size="16" font-weight="700" fill="#fff">escrito en una teoría</text>
+  </svg>
+  </div>
+  <p>Si yo mido "deprimido" pensando en tristeza y tú pensando en desánimo, nuestros resultados <b>no se pueden comparar</b> aunque usemos la misma palabra. De eso se trata: no de hablar bonito, sino de estar seguros de que estudiamos lo mismo.</p>`},
+
+{t:'Caso 2 · las palabras', h:`
+  <span class="kicker">Dónde se usa cada lenguaje</span>
+  <h2>La psicóloga sale del consultorio</h2>
+  <p class="grande">Llega a su casa, su hijo rompió un plato, y <span class="destello">no le dice "estás emitiendo una conducta de baja tasa"</span>.</p>
+  <p>Usa sus términos técnicos para trabajar. Para vivir usa los de siempre, como todos.</p>
+  <p>Un término técnico funciona <b>dentro</b> de su teoría, como una pieza dentro de su máquina. Fuera de ella no sirve: solo se ve impresionante.</p>
+  <div class="nota warn"><b>Detector de charlatanes:</b> si alguien explica tu vida diaria con palabras que suenan técnicas — "tu energía está bloqueada", "eres cerebro derecho" — hazle dos preguntas: <b>¿dónde está escrito qué significa eso?</b> y <b>¿cómo se vería si fuera cierto?</b> Si no hay respuesta, son palabras de goma con bata.</div>`},
+
+{t:'Caso 2 · las palabras', h:`
+  <span class="kicker">Aquí estaba la trampa del arranque</span>
+  <h2>Contar bien todavía no es hacer ciencia</h2>
+  <div class="malla dos">
+    <div class="tarjeta"><h3>${I.libreta}Lo que teníamos</h3><p>"Los niños resolvieron 7 de 10 problemas con el celular y 9 de 10 sin él."<br><br>Está bien hecho: se sabe qué se contó y en qué condiciones. Pero es <b>un dato</b> — lo que pasó ese día en ese salón.</p></div>
+    <div class="tarjeta verde"><h3>${I.red}Lo que le falta</h3><p>Que alguien diga <b>qué tipo de relación es esa</b>, con los términos de alguna teoría, y <b>qué debería pasar en otros salones</b> donde nadie ha mirado todavía.<br><br>Ahí el dato se vuelve conocimiento.</p></div>
+  </div>
+  <div class="figura">
+  <svg viewBox="0 0 820 170">
+    <text x="190" y="24" text-anchor="middle" font-size="19" font-weight="800" fill="#8FA3B8">UN DATO SUELTO</text>
+    <circle cx="190" cy="95" r="13" fill="#123C72"/>
+    <text x="190" y="140" text-anchor="middle" font-size="16" fill="#7A8898">lo que pasó ese día, en ese salón</text>
+    <path d="M330 95 l40 0 m-12-11 l12 11 -12 11" stroke="#C77D1F" stroke-width="4" fill="none"/>
+    <text x="610" y="24" text-anchor="middle" font-size="19" font-weight="800" fill="#123C72">DENTRO DE UNA TEORÍA</text>
+    <circle cx="530" cy="70" r="10" fill="#1E5AA7"/><circle cx="610" cy="110" r="13" fill="#C77D1F"/>
+    <circle cx="690" cy="62" r="10" fill="#1E5AA7"/><circle cx="560" cy="126" r="9" fill="#1E5AA7"/><circle cx="672" cy="122" r="9" fill="#1E5AA7"/>
+    <path d="M530 70L610 110M690 62L610 110M560 126L610 110M672 122L610 110" stroke="#C6D2DF" stroke-width="2.5"/>
+    <text x="610" y="152" text-anchor="middle" font-size="16" fill="#7A8898">conectado con otros casos: ahora predice</text>
+  </svg>
+  </div>
+  <p>El punto solo cuenta lo que pasó una vez. Conectado con una teoría, empieza a decir algo sobre salones donde no hemos entrado.</p>
+  <div class="cita">Medir bien es necesario. No es suficiente.</div>
+  <div class="nota warn"><b>Y al revés también falla:</b> teoría sin datos es pura opinión elegante; datos sin teoría son anécdotas con decimales.</div>`},
+
+{t:'Caso 2 · las palabras', q:'Un colega dice: "apliqué un test y salió que el niño tiene baja tolerancia a la frustración". ¿Qué revisarían primero?',
+ ops:['Si "tolerancia a la frustración" está definida en algún lado — o es palabra de goma con bata','Si el test está validado y tiene buena confiabilidad','Si el niño estaba cansado ese día','Si la puntuación quedó por debajo del punto de corte'],
+ ok:0,
+ exp:'Difícil, porque la opción 2 <b>parece</b> la respuesta profesional. Pero fíjense: un test puede ser muy confiable — medir siempre lo mismo — y aun así nadie saber <b>qué</b> es ese "lo mismo". La confiabilidad no arregla un concepto mal definido. Primero qué se midió; después con qué.'},
+
+/* ===== 3 ===== */
+{t:'Caso 3 · el celular', h:`
+  <span class="kicker">Ejemplo primero · una pregunta de este salón</span>
+  <h2><span class="num-carac">3</span>"Tener el celular en el escritorio te baja el desempeño"</h2>
+  <p class="grande">¿Cómo saldríamos de dudas? Vamos a armarlo <span class="destello">paso a paso</span>.</p>
+  <div id="pasoZona"></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
+    <button class="btn" id="pasoBtn">Siguiente paso ▸</button>
+  </div>`},
+
+{t:'Caso 3 · el celular', h:`
+  <span class="kicker">Lo que acaban de armar tiene tres escalones</span>
+  <h2>Comprobar tiene tres escalones</h2>
+  <div class="figura">
+  <svg viewBox="0 0 820 230">
+    <rect x="40" y="170" width="230" height="48" rx="8" fill="#C6D2DF"/>
+    <rect x="295" y="114" width="230" height="104" rx="8" fill="#8FA3B8"/>
+    <rect x="550" y="54" width="230" height="164" rx="8" fill="#123C72"/>
+    <text x="155" y="192" text-anchor="middle" font-size="19" font-weight="700" fill="#14263B">Mirar buscando</text>
+    <text x="155" y="212" text-anchor="middle" font-size="19" font-weight="700" fill="#14263B">algo en particular</text>
+    <text x="410" y="152" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">Anotar con orden,</text>
+    <text x="410" y="176" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">medir, comparar</text>
+    <text x="665" y="106" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">Provocar tú</text>
+    <text x="665" y="130" text-anchor="middle" font-size="19" font-weight="700" fill="#fff">las condiciones</text>
+    <text x="665" y="162" text-anchor="middle" font-size="17" fill="#DEEAF7">a esto se le llama</text>
+    <text x="665" y="186" text-anchor="middle" font-size="19" font-weight="800" fill="#fff">EXPERIMENTO</text>
+    <path d="M275 187 l14 0 m-6-6 l6 6 -6 6" stroke="#C77D1F" stroke-width="4" fill="none"/>
+    <path d="M530 149 l14 0 m-6-6 l6 6 -6 6" stroke="#C77D1F" stroke-width="4" fill="none"/>
+  </svg>
+  </div>
+  <p>Un experimento no es tener bata ni aparatos caros. Es <b>no quedarse esperando</b>: uno mismo pone las condiciones para que el asunto se deje ver.</p>
+  <div class="nota"><b>¿Y quién decide qué provocar?</b> Lo que escogimos estudiar. Nosotros dijimos que "desempeño" iba a ser <b>aciertos en 10 problemas</b> — por eso supimos qué medir. Sin esa decisión, no sabríamos ni qué mirar.</div>`},
+
+/* ===== 4 ===== */
+{t:'Caso 4 · Juan', h:`
+  <span class="kicker">Ejemplo primero · un alumno de cualquier salón</span>
+  <h2><span class="num-carac">4</span>"Juan no participa porque es tímido"</h2>
+  <p class="grande">Suena a explicación. Háganle dos preguntas y se cae:</p>
+  <div class="malla dos">
+    <div class="tarjeta roja"><h3>¿Qué hago mañana con eso?</h3><p>Nada. "Tímido" no me dice qué cambiar en la clase.</p></div>
+    <div class="tarjeta roja"><h3>¿Cómo sé que es tímido?</h3><p>Porque no participa. ¿Y por qué no participa? Porque es tímido. <b>Se muerde la cola.</b></p></div>
+  </div>
+  <div class="cita">Eso no es explicar. Es ponerle un apodo al problema.</div>`},
+
+{t:'Caso 4 · Juan', h:`
+  <span class="kicker">Ahora sí · suban la escalera</span>
+  <h2>El mismo Juan, cuatro escalones más arriba</h2>
+  <p class="sub">Toquen el botón. Verán que no hace falta ningún dato nuevo: solo hay que decir <b>cuándo sí y cuándo no</b>.</p>
+  <div id="circZona"></div>
+  <div style="display:flex;gap:10px;justify-content:center;margin-top:12px">
+    <button class="btn" id="circBtn">Subir un escalón ▸</button>
+  </div>`},
+
+{t:'Caso 4 · Juan', h:`
+  <span class="kicker">Ya lo hicieron ustedes; ahora se llama así</span>
+  <h2>Circunstanciar</h2>
+  <p class="grande">Quiere decir: <span class="destello">señalar en qué situaciones ocurre y en cuáles no</span>.</p>
+  <div class="malla dos">
+    <div class="tarjeta roja"><h3>${I.etiqueta}Poner apodo</h3><p>"Es tímido", "es flojo", "le falta motivación", "tiene mala actitud".<br><br>Una palabra que tapa el problema.</p></div>
+    <div class="tarjeta verde"><h3>${I.diana}Circunstanciar</h3><p>"Participa si la pregunta es de sí o no, si ya lo escribió antes, y si están en equipos de tres. No participa si le pregunto de sorpresa frente a todos."<br><br>Situaciones concretas: unas lo <b>permiten</b>, otras lo <b>impiden</b>.</p></div>
+  </div>
+  <div class="figura">
+  <svg viewBox="0 0 820 190">
+    <rect x="40" y="40" width="340" height="116" rx="12" fill="#E4F1EA" stroke="#2E7D5B" stroke-width="3"/>
+    <text x="210" y="70" text-anchor="middle" font-size="19" font-weight="800" fill="#2E7D5B">SÍ PARTICIPA</text>
+    <text x="210" y="100" text-anchor="middle" font-size="17" fill="#14263B">pregunta de sí o no</text>
+    <text x="210" y="124" text-anchor="middle" font-size="17" fill="#14263B">ya la escribió antes · equipo de tres</text>
+    <rect x="440" y="40" width="340" height="116" rx="12" fill="#F6E6E1" stroke="#B3452F" stroke-width="3"/>
+    <text x="610" y="70" text-anchor="middle" font-size="19" font-weight="800" fill="#B3452F">NO PARTICIPA</text>
+    <text x="610" y="100" text-anchor="middle" font-size="17" fill="#14263B">pregunta de sorpresa</text>
+    <text x="610" y="124" text-anchor="middle" font-size="17" fill="#14263B">frente a todo el grupo</text>
+    <text x="410" y="178" text-anchor="middle" font-size="17" font-weight="700" fill="#C77D1F">la explicación vive en la frontera entre los dos lados</text>
+  </svg>
+  </div>
+  <p>Quien explica así ya no tiene una opinión sobre Juan: tiene un <b>mapa de situaciones</b>. Y sabe qué hacer el lunes. La etiqueta describe a la persona; circunstanciar describe las situaciones — y esas sí se pueden cambiar.</p>
+  <div class="nota ok"><b>Prueba de bolsillo para toda su carrera:</b> si la explicación no le dice a nadie <b>qué cambiar mañana</b>, no explicó nada: puso un apodo.</div>`},
+
+{t:'Caso 4 · Juan', h:`
+  <span class="kicker">Tres reglas · con el mismo Juan</span>
+  <h2>Para que una explicación aguante</h2>
+  <div class="malla tres">
+    <div class="tarjeta"><h3>Que no mezcle</h3><p><em>Se rompe si digo:</em> "no participa por cómo es la clase… y además porque sacó el carácter de su papá". Son dos explicaciones pegadas con cinta.<br><br><b>Término:</b> coherencia.</p></div>
+    <div class="tarjeta"><h3>${I.balanza}Que no se contradiga</h3><p><em>Se rompe si digo:</em> "le da pena el grupo" y tres líneas después "participa más cuando hay más gente".<br><br><b>Término:</b> congruencia.</p></div>
+    <div class="tarjeta acento"><h3>${I.red}Que sirva para más casos</h3><p><em>Gana fuerza si:</em> las mismas situaciones explican también que no pida ayuda en una tienda llena.<br><br><b>Término:</b> inclusividad.</p></div>
+  </div>
+  <p style="margin-top:14px" class="grande">Vale más la explicación que <span class="destello">sirve para más casos con menos ideas</span> — no la que trae más datos.</p>`},
+
+{t:'Caso 4 · Juan', q:'¿Cuál de estas cuatro SÍ explica, con lo que acabamos de ver?',
+ ops:['"Agrede cuando le quitan un juguete y el adulto se lo devuelve; no agrede si se le avisa que sigue su turno"','"Agrede porque trae mucha energía acumulada"','"Agrede porque en su casa ve violencia"','"Agrede el 40 % de los días, según el registro de la maestra"'],
+ ok:0,
+ exp:'Vamos una por una. La 2 es apodo. La 4 es un <b>dato</b>, no una explicación: dice cuánto, no en qué situaciones. Y la 3 es la más tramposa: señala un antecedente real, pero <b>no dice cuándo sí y cuándo no</b> — si fuera suficiente, agrediría todo el tiempo y con todos. Solo la 1 dice qué situación lo provoca y cuál lo evita: eso es lo que sirve para actuar mañana.'},
+
+/* ===== 5 ===== */
+{t:'Caso 5 · los métodos', h:`
+  <span class="kicker">Un mito de la primaria, tachado</span>
+  <h2><span class="num-carac">5</span>"El método científico" no existe</h2>
+  <div class="figura">
+  <svg viewBox="0 0 820 180">
+    <rect x="210" y="14" width="400" height="148" rx="12" fill="#E9EEF4" stroke="#C6D2DF" stroke-width="3"/>
+    <text x="410" y="48" text-anchor="middle" font-size="20" font-weight="800" fill="#7A8898">EL MÉTODO CIENTÍFICO</text>
+    <text x="410" y="78" text-anchor="middle" font-size="17" fill="#7A8898">1. Observar  2. Preguntar  3. Hipótesis</text>
+    <text x="410" y="103" text-anchor="middle" font-size="17" fill="#7A8898">4. Experimentar  5. Concluir</text>
+    <line x1="230" y1="28" x2="590" y2="152" stroke="#B3452F" stroke-width="8" stroke-linecap="round"/>
+    <line x1="590" y1="28" x2="230" y2="152" stroke="#B3452F" stroke-width="8" stroke-linecap="round"/>
+  </svg>
+  </div>
+  <p class="grande">No hay <span class="destello">una</span> receta de pasos. Hay <span class="destello">muchos caminos</span>.</p>
+  <p>Un caso clínico, una observación en un salón y un experimento no se hacen igual. Lo único que comparten es la exigencia: <b>escoger bien qué estudiar y salir a comprobarlo</b>.</p>
+  <div class="nota"><b>Para ustedes:</b> cuando lleguemos a los diseños, no aprenderán "el" método sino un repertorio. La habilidad es <b>elegir el camino según la pregunta</b>.</div>`},
+
+/* ===== TRAMPAS ===== */
+{t:'Trampas', h:`
+  <span class="kicker">Dos cosas que parecen ciencia y no lo son</span>
+  <h2>Cuidado con estas dos</h2>
+  <div class="malla dos">
+    <div class="tarjeta roja"><h3>${I.alerta}1 · Los números solos</h3><p>Si la palabra que mides es de goma, los porcentajes solo le ponen número a la goma.<br><br>Hay un nombre para eso: <b>cuantificar la confusión</b>.</p></div>
+    <div class="tarjeta roja"><h3>${I.alerta}2 · Las palabras prestadas</h3><p>Ponerle "neuro" a algo no lo vuelve ciencia: le presta prestigio. Neurocoaching, neuroventas, neuro-lo-que-sea.<br><br>Prestigio prestado ≠ haber escogido bien qué estudiar.</p></div>
+  </div>
+  <p style="margin-top:14px">Las dos imitan lo <b>visible</b> de la ciencia — números y vocabulario — y se saltan lo invisible: haber definido bien qué se estudia.</p>
+  <div class="nota warn"><b>Consejo:</b> no discutan los números. Pregunten por la definición. Ahí se cae todo, sin necesidad de pelear.</div>`},
+
+{t:'Debate', h:`
+  <span class="kicker">El punto fino · aquí se puede discutir</span>
+  <h2>¿Entonces medir la autoestima está mal?</h2>
+  <p class="grande">No. Nadie dice que los constructos no existan ni que no se midan. El reclamo es más específico:</p>
+  <div class="malla dos">
+    <div class="tarjeta acento"><h3>Lo que reclama</h3><p>Que se agarre una palabra del habla común, se le llame "constructo" y se le dé rango técnico con una definición que <b>se valida con el mismo test que la mide</b>. El concepto se apoya en el test y el test en el concepto.</p></div>
+    <div class="tarjeta"><h3>Lo que responde la psicometría</h3><p>Que no es círculo: existen la validez de constructo, la convergente y la discriminante — es decir, se revisa que el test se relacione con otras cosas <b>tal como la teoría lo predice</b>. La escala de Rosenberg tiene marco teórico y décadas de replicación.</p></div>
+  </div>
+  <div class="cita">Esto no está cerrado. Es una discusión seria — y ustedes deben poder defender los dos lados.</div>`},
+
+{t:'Vuelta al inicio', h:`
+  <span class="kicker">Momento de la verdad</span>
+  <h2>Revisen sus votos del arranque</h2>
+  <div class="malla dos">
+    <div class="tarjeta roja"><h3>${I.alerta}Ni siquiera se pueden comprobar</h3><p><b>"La energía del salón estaba pesada."</b><br><b>"Los niños índigo vibran más alto."</b><br><br>Nadie sabe qué significan esas palabras ni qué habría que ir a ver. No hay nada que comprobar.</p></div>
+    <div class="tarjeta"><h3>${I.check}Sí se pueden comprobar</h3><p><b>Estilos de aprendizaje:</b> se comprobó… y salió que no funciona. <b>Poder comprobarse no es lo mismo que ser cierto.</b><br><br><b>Rosenberg tras perder el empleo:</b> dice qué se mide, con qué, en quiénes y contra qué se compara.</p></div>
+  </div>
+  <div class="nota ok"><b>Lo que nos costó la sesión entender:</b> aunque una frase pase esas pruebas, un resultado suelto sigue siendo <b>un dato</b> hasta que alguien lo lee con una teoría. Se necesitan las tres cosas: escoger qué estudiar, palabras de fierro y salir a comprobar.</div>`},
+
+{t:'Síntesis', h:`
+  <span class="kicker">Ahora sí · ¿qué tenían en común todos los casos?</span>
+  <h2>Lo que fuimos encontrando</h2>
+  <div class="malla tres">
+    <div class="tarjeta acento"><h3>${I.corte}1 · Escoger una parte</h3><p>el bebé, la cancha, el berrinche: nadie estudió el episodio completo</p></div>
+    <div class="tarjeta acento"><h3>${I.fierro}2 · Palabras que no se mueven</h3><p>"deprimido" en el pasillo vs. en un expediente</p></div>
+    <div class="tarjeta acento"><h3>${I.matraz}3 · Provocar, no esperar</h3><p>el experimento del celular que armamos entre todos</p></div>
+    <div class="tarjeta"><h3>${I.diana}4 · Decir cuándo sí y cuándo no</h3><p>la escalera de Juan, del apodo al mapa de situaciones</p></div>
+    <div class="tarjeta"><h3>${I.mapa}5 · No hay una sola receta</h3><p>caso clínico, observación y experimento no se hacen igual</p></div>
+    <div class="tarjeta verde"><h3>Y un límite</h3><p>la ciencia es una manera de conocer entre varias</p></div>
+  </div>
+  <p style="margin-top:14px" class="grande">Los cinco criterios <span class="destello">se derivaron del análisis de los casos</span>, no al revés.</p>`},
+
+{t:'Herramienta', h:`
+  <span class="kicker">Llévense esto aunque olviden todo lo demás</span>
+  <h2>Cinco preguntas para cualquier "está comprobado"</h2>
+  <div class="malla" style="grid-template-columns:1fr;gap:8px">
+    <div class="tarjeta"><h3>${I.corte}1. ¿Qué escogiste estudiar, exactamente?</h3><p>¿De qué asunto y qué parte de él?</p></div>
+    <div class="tarjeta"><h3>${I.fierro}2. Esa palabra, ¿está definida en algún lado?</h3><p>¿O es palabra de goma?</p></div>
+    <div class="tarjeta"><h3>${I.lupa}3. ¿Qué te dijo dónde mirar?</h3><p>Nadie observa "todo": ¿con qué criterio miraste?</p></div>
+    <div class="tarjeta"><h3>${I.matraz}4. ¿Provocaste algo o solo esperaste?</h3><p>¿Qué condiciones controlaste y contra qué comparaste?</p></div>
+    <div class="tarjeta acento"><h3>${I.diana}5. ¿En qué situaciones dejaría de pasar?</h3><p>Quien no sabe cuándo su fenómeno NO ocurre, todavía no lo explicó.</p></div>
+  </div>`},
+
+{t:'Glosario', h:`
+  <span class="kicker">Toquen cada tarjeta para voltearla</span>
+  <h2>Las seis palabras técnicas</h2>
+  <p class="sub">Primero intenten decirla ustedes. Luego tóquenla para ver la traducción.</p>
+  <div class="malla tres">
+    <div class="tarjeta" data-flip="g1"><div class="cara"><h3>${I.corte}Abstracción analítica</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Escoger una propiedad y dejar fuera lo demás.</p></div></div>
+    <div class="tarjeta" data-flip="g2"><div class="cara"><h3>${I.goma}Multívoco / unívoco</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Palabra de goma (cambia de significado) / palabra de fierro (significa una sola cosa).</p></div></div>
+    <div class="tarjeta" data-flip="g3"><div class="cara"><h3>Mundo cotidiano / teórico</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Donde vivimos / los conceptos con que trabaja una ciencia. En el segundo se trabaja; nadie vive ahí.</p></div></div>
+    <div class="tarjeta" data-flip="g4"><div class="cara"><h3>${I.matraz}Verificación</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Comprobar: mirar con criterio, anotar con orden y provocar las condiciones.</p></div></div>
+    <div class="tarjeta" data-flip="g5"><div class="cara"><h3>${I.diana}Circunstanciar</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Explicar diciendo en qué situaciones pasa y en cuáles no.</p></div></div>
+    <div class="tarjeta" data-flip="g6"><div class="cara"><h3>Inconmensurables</h3><p style="color:#7A8898">tocar para ver</p></div><div class="reverso"><h3>Qué significa</h3><p>Dos teorías que no se traducen entre sí: se comparan, no se mezclan.</p></div></div>
+  </div>`},
+
+{t:'El límite', h:`
+  <span class="kicker">Y lo que nos toca a nosotros</span>
+  <h2>Si todo empieza por escoger qué estudiar…</h2>
+  <p class="grande">La física escogió la materia y la energía. La biología, los seres vivos. La química, de qué están hechas las cosas.</p>
+  <div class="cita">¿Y la psicología qué escogió?</div>
+  <p>En las otras ciencias discuten <b>cómo</b> estudiar su asunto. En psicología todavía se discute <b>cuál es el asunto</b>: ¿la conducta? ¿la mente? ¿el cerebro? ¿las relaciones? Por eso se dice que no tenemos una psicología, sino <b>varias</b> — como las cuatro del Oxxo, pero sin ponerse de acuerdo en cuál es su trabajo.</p>
+  <div class="figura">
+  <svg viewBox="0 0 820 150">
+    <rect x="30" y="86" width="760" height="40" rx="8" fill="#C6D2DF"/>
+    <text x="410" y="112" text-anchor="middle" font-size="18" font-weight="800" fill="#14263B">LO QUE SABEMOS POR VIVIR (el saber de todos los días)</text>
+    <g font-size="15" font-weight="700" text-anchor="middle">
+      <rect x="40" y="26" width="112" height="46" rx="8" fill="#123C72"/><text x="96" y="55" fill="#fff">CIENCIA</text>
+      <rect x="164" y="26" width="112" height="46" rx="8" fill="#8FA3B8"/><text x="220" y="55" fill="#fff">TÉCNICA</text>
+      <rect x="288" y="26" width="112" height="46" rx="8" fill="#8FA3B8"/><text x="344" y="55" fill="#fff">MATEMÁTICA</text>
+      <rect x="412" y="26" width="112" height="46" rx="8" fill="#8FA3B8"/><text x="468" y="55" fill="#fff">ARTE</text>
+      <rect x="536" y="26" width="112" height="46" rx="8" fill="#8FA3B8"/><text x="592" y="48" fill="#fff">DERECHO</text><text x="592" y="64" fill="#fff" font-size="12">y ética</text>
+      <rect x="660" y="26" width="112" height="46" rx="8" fill="#8FA3B8"/><text x="716" y="55" fill="#fff">RELIGIÓN</text>
+    </g>
+  </svg>
+  </div>
+  <p>La ciencia no está encima: está <b>al lado</b>, y todas se paran en el mismo piso. Pedirle a un juez que haga un experimento es confundir los oficios.</p>
+  <div class="nota ok"><b>La conclusión incómoda:</b> el problema de la psicología no es que le falten datos ni aparatos. Es que <b>falta ponerse de acuerdo en de qué son datos</b>. Y no olviden el otro límite: la ciencia es <b>una manera de conocer entre varias</b> — no el juez de las demás.</div>`},
+
+{t:'Reto final', h:`
+  <span class="kicker">Reto relámpago · Aula → Ruleta</span>
+  <h2>30 segundos</h2>
+  <p class="grande">A quien le toque, escoge una palabra que va a usar toda su vida profesional — <em>motivación, madurez, apego, autocontrol</em> — y contesta:</p>
+  <div class="cita">Si tuvieras que estudiarla, ¿qué parte escogerías? ¿Qué irías a ver, exactamente, y en qué situaciones?</div>
+  <p class="sub">2 puntos si propone algo observable y dice en qué situaciones. 1 punto si explica por qué esa palabra es de goma.</p>
+  <div class="nota"><b>Tarea:</b> la Lectura 2 con sus ejercicios, y traer un "científicamente comprobado" que hayan visto en la calle o en redes, pasado por las cinco preguntas.</div>`},
+
+{t:'Referencias', h:`
+  <span class="kicker">De dónde salió todo lo de hoy</span>
+  <h2>Referencias</h2>
+  <p class="sub">Todo lo que discutimos viene de estos textos. El autor es <b>Emilio Ribes-Iñesta</b>, psicólogo mexicano, investigador de la Universidad Veracruzana.</p>
+  <div class="malla" style="grid-template-columns:1fr;gap:9px;font-size:.95em">
+    <div class="tarjeta"><p>Ribes, E. (2018). <em>El estudio científico de la conducta individual: una introducción a la teoría de la psicología</em>. El Manual Moderno.</p></div>
+    <div class="tarjeta"><p>Ribes, E. (2020). Sobre la explicación y su relación con los distintos modos de conocimiento. <em>Acta Comportamentalia, 28</em>(2), 223–236.</p></div>
+    <div class="tarjeta"><p>Ribes, E. (2021). El problema del conocimiento: historia de una malformación conceptual. <em>Revista Mexicana de Análisis de la Conducta, 47</em>(2), 211–235.</p></div>
+    <div class="tarjeta acento"><p>Ribes, E. (2024). Inconmensurabilidad y confusión conceptual en la psicología. <em>Acta Comportamentalia, 32</em>(3), 367–380.</p></div>
+  </div>
+  <p style="margin-top:12px" class="sub">Los cuatro son de acceso abierto. La Lectura 2 del curso resume el argumento con ejercicios.</p>`}
+];
+
+/* ===== Datos del caso astronomía vs astrología ===== */
+const ASTRO = [];
+
+/* ==================== MOTOR ==================== */
+let i = 0;
+const slide = document.getElementById('slide');
+const num = document.getElementById('num');
+const tramo = document.getElementById('tramo');
+const estado = { pregs:{}, astro:new Set(), ojos:new Set(), obs:new Set(), clas:{resp:{},ok:0}, cancha:{resp:{},ok:0}, flip:new Set(), paso:1, circ:1 };
+
+function pintar(){
+  const s = S[i];
+  if(s.q){ montarPreg(); }
+  else {
+    slide.innerHTML = s.h;
+    montarAstro(); montarObs(); montarClas(); montarCancha(); montarPasos(); montarCirc(); montarFlip(); montarRev();
+  }
+  slide.scrollTop = 0;
+  num.textContent = (i+1)+' / '+S.length;
+  tramo.textContent = s.t;
+  document.getElementById('prog').style.width = ((i+1)/S.length*100)+'%';
+}
+
+function montarPreg(){
+  const s=S[i], letras=['1','2','3','4'];
+  slide.innerHTML = `
+    <span class="kicker">Participación grupal · voten a mano alzada</span>
+    <h2>${s.q}</h2>
+    <div class="malla" style="grid-template-columns:1fr">
+      ${s.ops.map((o,k)=>`<button class="chip" data-k="${k}" style="border-radius:12px;text-align:left;font-size:clamp(.95rem,1.7vw,1.15rem);padding:13px 16px;display:flex;gap:12px;align-items:flex-start"><b style="min-width:22px">${letras[k]}</b><span>${o}</span></button>`).join('')}
+    </div>
+    <div class="fb" id="pregFb"></div>`;
+  const botones=[...slide.querySelectorAll('.chip')];
+  const marca=(k)=>{
+    botones.forEach((b,kk)=>{
+      b.disabled=true;
+      if(kk===s.ok) b.classList.add('bien');
+      else if(kk===k && k!==s.ok) b.classList.add('mal');
+      else if(kk!==s.ok) b.classList.add('apagado');
+    });
+    const f=slide.querySelector('#pregFb');
+    f.classList.add('on', k===s.ok?'bien':'mal');
+    f.innerHTML=(k===s.ok?'<b>Correcto.</b> ':'<b>No exactamente.</b> ')+s.exp;
+  };
+  botones.forEach(b=> b.onclick=()=>{
+    if(estado.pregs[i]!==undefined) return;
+    estado.pregs[i]=+b.dataset.k;
+    marca(+b.dataset.k);
+  });
+  if(estado.pregs[i]!==undefined) marca(estado.pregs[i]);
+}
+
+
+
+function montarObs(){
+  const chips = slide.querySelectorAll('[data-obs]'); if(!chips.length) return;
+  const T = {
+    oNeu:'<b style="color:var(--azul-osc)">La neuróloga anota:</b> a esa edad el niño todavía no controla bien sus impulsos — le interesa cómo va madurando eso.',
+    oNut:'<b style="color:var(--vara)">La nutrióloga anota:</b> cuántas horas lleva sin comer y cuánta azúcar trae encima. A esa hora puede andar bajo de energía.',
+    oPsi:'<b style="color:var(--verde)">La psicóloga anota:</b> qué pasó justo antes del grito y qué pasó justo después. Si la mamá terminó comprándole el dulce, ahí hay algo que aprender.',
+    oTra:'<b style="color:var(--rojo)">La trabajadora social anota:</b> cómo es la jornada de esa familia, quién cuida al niño y con qué apoyos cuentan.'
+  };
+  const cap = slide.querySelector('#obsCaption');
+  chips.forEach(ch=> ch.onclick=()=>{
+    chips.forEach(c=>c.classList.remove('bien'));
+    ch.classList.add('bien');
+    cap.style.display='block';
+    cap.innerHTML = T[ch.dataset.obs];
+    estado.obs.add(ch.dataset.obs);
+    if(estado.obs.size===4) slide.querySelector('#obsCita').style.display='block';
+  });
+  if(estado.obs.size===4) slide.querySelector('#obsCita').style.display='block';
+}
+
+function montarClas(){
+  const zona = slide.querySelector('#clasZona'); if(!zona) return;
+  zona.innerHTML = CLAS.map((c,k)=>`
+    <div class="tarjeta" id="clasC${k}">
+      <p style="font-weight:600;margin-bottom:10px;font-size:clamp(.95rem,1.6vw,1.12rem)">${c.f}</p>
+      <div style="display:flex;gap:8px">
+        <button class="chip" data-c="${k}" data-v="C">SE PRUEBA</button>
+        <button class="chip" data-c="${k}" data-v="N">NO</button>
+      </div>
+      <div class="fb" id="clasF${k}" style="font-size:clamp(.88rem,1.4vw,1rem)"></div>
+    </div>`).join('');
+  const pinta=(k,v)=>{
+    const c=CLAS[k];
+    slide.querySelectorAll(`#clasC${k} .chip`).forEach(b=>{
+      b.disabled=true;
+      if(b.dataset.v===c.ok) b.classList.add('bien');
+      else if(b.dataset.v===v) b.classList.add('mal');
+      else b.classList.add('apagado');
+    });
+    const f=slide.querySelector(`#clasF${k}`);
+    f.classList.add('on', v===c.ok?'bien':'mal');
+    f.innerHTML=(v===c.ok?'<b>Sí.</b> ':'<b>No.</b> ')+c.exp;
+  };
+  zona.querySelectorAll('.chip').forEach(b=> b.onclick=()=>{
+    const k=+b.dataset.c, v=b.dataset.v;
+    if(estado.clas.resp[k]!==undefined) return;
+    estado.clas.resp[k]=v;
+    if(v===CLAS[k].ok) estado.clas.ok++;
+    pinta(k,v);
+    slide.querySelector('#clasM').textContent=`Aciertos: ${estado.clas.ok} de 5`;
+    if(Object.keys(estado.clas.resp).length===5) slide.querySelector('#clasNota').style.display='block';
+  });
+  Object.entries(estado.clas.resp).forEach(([k,v])=>pinta(+k,v));
+  slide.querySelector('#clasM').textContent=`Aciertos: ${estado.clas.ok} de 5`;
+  if(Object.keys(estado.clas.resp).length===5) slide.querySelector('#clasNota').style.display='block';
+}
+
+
+
+function montarCancha(){
+  const zona = slide.querySelector('#canchaZona'); if(!zona) return;
+  zona.innerHTML = CANCHA.map((c,k)=>`
+    <div class="tarjeta" id="canC${k}" style="margin-bottom:10px">
+      <h3>${c.c}</h3>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+        ${c.ops.map((o,j)=>`<button class="chip" data-c="${k}" data-o="${j}">${o}</button>`).join('')}
+      </div>
+      <div class="fb" id="canF${k}" style="font-size:clamp(.88rem,1.4vw,1.02rem)"></div>
+    </div>`).join('');
+  const pinta=(k,j)=>{
+    const c=CANCHA[k];
+    slide.querySelectorAll(`#canC${k} .chip`).forEach((b,jj)=>{
+      b.disabled=true;
+      if(jj===c.ok) b.classList.add('bien');
+      else if(jj===j) b.classList.add('mal');
+      else b.classList.add('apagado');
+    });
+    const f=slide.querySelector(`#canF${k}`);
+    f.classList.add('on', j===c.ok?'bien':'mal');
+    f.innerHTML=(j===c.ok?'<b>Sí.</b> ':'<b>No.</b> ')+c.exp;
+  };
+  zona.querySelectorAll('.chip').forEach(b=> b.onclick=()=>{
+    const k=+b.dataset.c, j=+b.dataset.o;
+    if(estado.cancha.resp[k]!==undefined) return;
+    estado.cancha.resp[k]=j;
+    if(j===CANCHA[k].ok) estado.cancha.ok++;
+    pinta(k,j);
+    slide.querySelector('#canchaM').textContent=`Aciertos: ${estado.cancha.ok} de 3`;
+    if(Object.keys(estado.cancha.resp).length===3) slide.querySelector('#canchaNota').style.display='block';
+  });
+  Object.entries(estado.cancha.resp).forEach(([k,j])=>pinta(+k,+j));
+  slide.querySelector('#canchaM').textContent=`Aciertos: ${estado.cancha.ok} de 3`;
+  if(Object.keys(estado.cancha.resp).length===3) slide.querySelector('#canchaNota').style.display='block';
+}
+
+function montarFlip(){
+  const cards = slide.querySelectorAll('[data-flip]'); if(!cards.length) return;
+  cards.forEach(c=>{
+    const clave = c.getAttribute('data-flip');
+    const cara = c.querySelector('.cara');
+    const reverso = c.querySelector('.reverso');
+    const abierto = estado.flip.has(clave);
+    cara.style.display = abierto ? 'none' : 'block';
+    reverso.style.display = abierto ? 'block' : 'none';
+    c.style.cursor = 'pointer';
+    c.onclick = ()=>{
+      if(estado.flip.has(clave)) estado.flip.delete(clave); else estado.flip.add(clave);
+      montarFlip();
+    };
+  });
+}
+
+function montarCirc(){
+  const zona = slide.querySelector('#circZona'); if(!zona) return;
+  const btn = slide.querySelector('#circBtn');
+  const render = ()=>{
+    zona.innerHTML = `<div class="malla" style="grid-template-columns:1fr;gap:9px">` +
+      CIRC.slice(0, estado.circ).map((c,k)=>`
+        <div class="tarjeta ${k===0?'roja':(k===estado.circ-1?'acento':'')}">
+          <h3>${c[0]}</h3><p>${c[1]}</p>
+        </div>`).join('') + `</div>`;
+    if(estado.circ>=CIRC.length){
+      btn.disabled=true; btn.textContent='Arriba del todo';
+      zona.innerHTML += `<div class="nota ok" style="margin-top:12px"><b>Miren la diferencia:</b> del peldaño 0 al 4 nadie agregó datos nuevos ni estadística. Solo se fueron <b>haciendo explícitas las condiciones</b>. Eso, exactamente, es circunstanciar.</div>`;
+    }
+  };
+  btn.onclick = ()=>{ if(estado.circ<CIRC.length){ estado.circ++; render(); } };
+  render();
+}
+
+function montarPasos(){
+  const zona = slide.querySelector('#pasoZona'); if(!zona) return;
+  const btn = slide.querySelector('#pasoBtn');
+  const render = ()=>{
+    zona.innerHTML = `<div class="malla dos">` + PASOS.slice(0, estado.paso).map((p,k)=>`
+      <div class="tarjeta ${k===estado.paso-1?'acento':''}"><h3>${k+1} · ${p[0]}</h3><p>${p[1]}</p></div>`).join('') + `</div>`;
+    if(estado.paso>=PASOS.length){
+      btn.disabled=true; btn.textContent='Listo — eso es un experimento';
+      zona.innerHTML += `<div class="nota ok" style="margin-top:12px"><b>Eso que acaban de armar es un experimento.</b> No hizo falta bata ni laboratorio: bastó decidir qué contar, provocar la situación, cuidar que nada más se colara y aceptar que el resultado pudiera contradecirnos.</div>`;
+    }
+  };
+  btn.onclick = ()=>{ if(estado.paso<PASOS.length){ estado.paso++; render(); } };
+  render();
+}
+
+
+function montarAstro(){
+  const zona = slide.querySelector('#astroZona'); if(!zona) return;
+  const chips = slide.querySelectorAll('[data-astro]');
+  const pintaZona = (k)=>{
+    const [nom, astroSi, astroNo] = ASTRO[k];
+    zona.innerHTML = `
+      <div class="malla dos" style="margin-top:8px">
+        <div class="tarjeta verde"><h3>Astronomía · ${nom}</h3><p>${astroSi}</p></div>
+        <div class="tarjeta roja"><h3>Astrología · ${nom}</h3><p>${astroNo}</p></div>
+      </div>`;
+  };
+  chips.forEach(ch=> ch.onclick=()=>{
+    const k=+ch.dataset.astro;
+    chips.forEach(c=>c.classList.remove('bien'));
+    ch.classList.add('bien');
+    if(estado.astro.has(k)===false){ estado.astro.add(k); ch.classList.add('apagado'); ch.classList.remove('apagado'); }
+    ch.style.borderColor='var(--verde)';
+    pintaZona(k);
+    if(estado.astro.size===7) slide.querySelector('#astroNota').style.display='block';
+  });
+  if(estado.astro.size===7) slide.querySelector('#astroNota').style.display='block';
+}
+
+function montarRev(){
+  slide.querySelectorAll('[data-rev]').forEach(b=> b.onclick=()=>{
+    const box=slide.querySelector('#'+b.getAttribute('data-rev'));
+    if(box){ box.classList.toggle('on'); box.classList.add('bien'); }
+  });
+}
+
+function ir(d){ const n=i+d; if(n>=0 && n<S.length){ i=n; pintar(); } }
+
+/* ==================== ZOOM ==================== */
+let zoom = 1;
+function aplicaZoom(){
+  zoom = Math.min(1.7, Math.max(0.6, zoom));
+  slide.style.zoom = zoom;
+  document.getElementById('zVal').textContent = Math.round(zoom*100)+'%';
+  try{ localStorage.setItem('sesionMC_zoom', zoom); }catch(e){}
+}
+document.getElementById('zMas').onclick = ()=>{ zoom+=0.1; aplicaZoom(); };
+document.getElementById('zMenos').onclick = ()=>{ zoom-=0.1; aplicaZoom(); };
+try{ const z=parseFloat(localStorage.getItem('sesionMC_zoom')); if(z) zoom=z; }catch(e){}
+aplicaZoom();
+
+/* ==================== MÓDULO AULA ==================== */
+
+const CLAS = [
+  {f:'"La energía del salón estaba pesada; por eso los niños no rindieron."', ok:'N',
+   exp:'No se puede comprobar: nadie sabe qué es una "energía pesada" ni qué habría que ir a ver. No hay nada que observar.'},
+  {f:'"Enseñar a cada alumno según su estilo de aprendizaje preferido mejora su rendimiento."', ok:'C',
+   exp:'Sí se puede comprobar — y ya se hizo muchas veces: no funcionó. Guarden el detalle: que algo <b>se pueda comprobar</b> no quiere decir que sea cierto.'},
+  {f:'"Las puntuaciones en la Escala de Rosenberg bajan en los tres meses siguientes a perder el empleo."', ok:'C',
+   exp:'Sí: dice con qué escala, en quiénes y en qué periodo. Un concepto bien definido sí se puede comprobar.'},
+  {f:'"El trauma no resuelto siempre termina expresándose de alguna manera."', ok:'N',
+   exp:'Trampa fina: suena clínico y serio, pero está armado para que <b>nada pueda contradecirlo</b>. Si la persona está mal, es el trauma; si está bien, lo reprimió; si nada ocurre, todavía no se expresa. Cuando cualquier resultado confirma la idea, no hay nada que comprobar.'},
+  {f:'"Los alumnos que reprueban tienen menos horas de sueño que los que aprueban."', ok:'C',
+   exp:'Sí se puede comprobar, y ojo: comprobar que dos cosas van juntas <b>no dice cuál causa a cuál</b>. Podría ser que dormir poco haga reprobar, que reprobar quite el sueño, o que ambas vengan de trabajar por las noches. Comprobable sí; concluyente, todavía no.'}
+];
+
+
+const CIRC = [
+  ['Escalón 0 · el apodo','"Juan no participa porque es tímido." <b>Ninguna situación.</b> No puedo adivinar nada ni cambiar nada.'],
+  ['Escalón 1 · una situación','"No participa cuando le pregunto de sorpresa, frente a todo el grupo." Ya apareció <b>algo que sí puedo cambiar</b> mañana.'],
+  ['Escalón 2 · cuándo sí','"Sí participa cuando la pregunta es de sí o no, cuando ya la escribió antes, y cuando están en equipos de tres." Ahora sé <b>cuándo sí y cuándo no</b>: eso ya es explicar.'],
+  ['Escalón 3 · la regla detrás','"Participa cuando ya tiene lista su respuesta y cuando lo escucha poca gente." Ya no es una lista de casos: es <b>una regla</b> que sirve para casos nuevos.'],
+  ['Escalón 4 · alcance','Esa misma regla explica que no pida ayuda en una tienda llena y sí en una vacía. <b>Una sola idea, varias situaciones.</b> Eso es lo que hace fuerte a una explicación.']
+];
+
+
+const CANCHA = [
+  {c:'Fisiología del ejercicio',
+   ops:['Cuántas pulsaciones por minuto alcanzan','Si se divierten o no','Quién es el más popular del equipo'],
+   ok:0, exp:'Se queda con el cuerpo funcionando: pulso, oxígeno, fatiga. Lo demás no es asunto suyo.'},
+  {c:'Psicología',
+   ops:['La marca del balón','Qué hacen cuando alguien falla un tiro','Cuántos metros mide la cancha'],
+   ok:1, exp:'Se queda con lo que pasa entre ellos: qué ocurre justo antes y justo después de cada jugada.'},
+  {c:'Economía',
+   ops:['Cuánto costó el equipo y quién lo pagó','Qué tan alto saltan','Si hace calor o no'],
+   ok:0, exp:'Se queda con el dinero: costos, quién financia el deporte escolar, a qué se destina.'}
+];
+
+const PASOS = [
+  ['1 · Escoge qué vas a mirar','"Desempeño" es muy vago. Pongámonos de acuerdo: <b>cuántos aciertos sacan en 10 problemas, en 15 minutos</b>. Listo, ya sabemos qué contar.'],
+  ['2 · Provoca la situación','No nos quedamos esperando: <b>nosotros ponemos la condición</b>. La mitad del grupo con el celular arriba del escritorio; la otra mitad sin celular.'],
+  ['3 · Que nada más se cuele','Mismos problemas, misma hora, mismo salón. Y decidimos <b>por sorteo</b> quién va en cada grupo, para que no nos toquen todos los buenos en matemáticas de un solo lado.'],
+  ['4 · Compara, aunque te desmienta','Contamos y comparamos. <b>Si sale igual en los dos grupos, la afirmación se cae</b> — y aceptar eso de antemano es lo que hace serio al asunto.']
+];
+
+const ALUMNOS = [
+  {id:'209760', nom:'Acosta Muñoz, Ana Lourdes'},
+  {id:'258519', nom:'Aguilar Orozco, Omar Tadeo'},
+  {id:'258451', nom:'Armendariz Gastelum, Jesus Antonio'},
+  {id:'258381', nom:'Ayala Franco, Danna Guadalupe'},
+  {id:'159235', nom:'Beltran Rivera, Francisca Alejandra de Jesus'},
+  {id:'148173', nom:'Bueno Mora, Dania Julieth'},
+  {id:'258675', nom:'Carballo Islas, Ana Sofia'},
+  {id:'249417', nom:'Castro Amarillas, Joel'},
+  {id:'243299', nom:'De La Rosa Castro, Abigail'},
+  {id:'215298', nom:'Dominguez Moreno, Danna Paola'},
+  {id:'235437', nom:'Duarte Figueroa, Jesus Eduardo'},
+  {id:'225320', nom:'Espinoza Felix, Aurelia De Jesus'},
+  {id:'259083', nom:'Garcia Esquer, Melchor'},
+  {id:'259130', nom:'Garcia Ramirez, Jesus Ricardo'},
+  {id:'249498', nom:'Herrera Cisneros, Nicolás'},
+  {id:'225637', nom:'Ibarra Valenzuela, Wendy Marlene'},
+  {id:'259376', nom:'Ledesma Leyva, Dalia Guadalupe'},
+  {id:'243380', nom:'Mendivil Chavez, Rubi Yuriana'},
+  {id:'259655', nom:'Montoya Felix, Vianey Guadalupe'},
+  {id:'226030', nom:'Paredes Alcantar, Silvana'},
+  {id:'259930', nom:'Pompa Gaz, Estrella Janeth'},
+  {id:'259995', nom:'Ramirez Ortiz, Karen Paola'},
+  {id:'259979', nom:'Ramos Diaz, Danna Valeria'},
+  {id:'240982', nom:'Verdugo Uraga, Brenda Paola'},
+  {id:'261597', nom:'Zazueta Armenta, Diana Sofia'},
+  {id:'258357', nom:'Zuñiga Cantu, Jose Juan'}
+];
+
+let aula = { asis:{}, pts:{}, ruletaUsados:[] };
+const claveAula = 'sesionMC_aula_'+new Date().toISOString().slice(0,10);
+try{ const g = JSON.parse(localStorage.getItem(claveAula)); if(g) aula = g; }catch(e){}
+function guardaAula(){ try{ localStorage.setItem(claveAula, JSON.stringify(aula)); }catch(e){} }
+
+const panel = document.getElementById('aulaPanel');
+const cuerpo = document.getElementById('aulaCuerpo');
+let tabActiva = 'lista';
+let ruletaTimer = null;
+
+document.getElementById('aulaBtn').onclick = ()=>{ panel.classList.add('abierto'); pintaAula(); };
+document.getElementById('aulaCerrar').onclick = ()=>{ panel.classList.remove('abierto'); clearInterval(ruletaTimer); };
+panel.addEventListener('click', e=>{ if(e.target===panel){ panel.classList.remove('abierto'); clearInterval(ruletaTimer); } });
+document.querySelectorAll('.aula-tab').forEach(t=> t.onclick = ()=>{
+  document.querySelectorAll('.aula-tab').forEach(x=>x.classList.remove('activa'));
+  t.classList.add('activa'); tabActiva=t.dataset.tab; clearInterval(ruletaTimer); pintaAula();
+});
+
+function ptsDe(id){ const p=aula.pts[id]||{s:0,c:0}; return p.s*1 + p.c*2; }
+
+function pintaAula(){
+  if(tabActiva==='lista'){
+    const pres = ALUMNOS.filter(a=>aula.asis[a.id]==='P').length;
+    const aus = ALUMNOS.filter(a=>aula.asis[a.id]==='A').length;
+    cuerpo.innerHTML = `
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <b>${new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})}</b>
+        <span style="color:var(--verde);font-weight:700">Presentes: ${pres}</span>
+        <span style="color:var(--rojo);font-weight:700">Ausentes: ${aus}</span>
+        <span style="color:#7A8898">Sin marcar: ${26-pres-aus}</span>
+        <button class="mini" id="todosP">Todos presentes</button>
+        <button class="mini" id="copiaLista">Copiar resumen</button>
+      </div>
+      ${ALUMNOS.map(a=>`
+        <div class="fila-al">
+          <span class="id">${a.id}</span>
+          <span class="nom">${a.nom}</span>
+          <button class="mini p ${aula.asis[a.id]==='P'?'on':''}" data-id="${a.id}" data-v="P">P</button>
+          <button class="mini a ${aula.asis[a.id]==='A'?'on':''}" data-id="${a.id}" data-v="A">A</button>
+        </div>`).join('')}`;
+    cuerpo.querySelectorAll('.mini.p,.mini.a').forEach(b=> b.onclick=()=>{
+      aula.asis[b.dataset.id] = (aula.asis[b.dataset.id]===b.dataset.v) ? undefined : b.dataset.v;
+      guardaAula(); pintaAula();
+    });
+    cuerpo.querySelector('#todosP').onclick=()=>{ ALUMNOS.forEach(a=>aula.asis[a.id]='P'); guardaAula(); pintaAula(); };
+    cuerpo.querySelector('#copiaLista').onclick=()=>{
+      const txt = 'Asistencia '+new Date().toLocaleDateString('es-MX')+'\n'+
+        ALUMNOS.map(a=>`${aula.asis[a.id]||'-'}\t${a.nom}\t${ptsDe(a.id)} pts`).join('\n');
+      navigator.clipboard && navigator.clipboard.writeText(txt);
+    };
+  }
+  else if(tabActiva==='ruleta'){
+    const soloP = ALUMNOS.some(a=>aula.asis[a.id]==='P');
+    const pool = ALUMNOS.filter(a => (!soloP || aula.asis[a.id]==='P') && !aula.ruletaUsados.includes(a.id));
+    cuerpo.innerHTML = `
+      <div class="ruleta-zona">
+        <p style="font-size:.95rem;color:#5B6A7C">${soloP?'Girando solo entre presentes':'Sin pase de lista: gira entre los 26'} · sin repetir hasta agotar (quedan ${pool.length})</p>
+        <div id="ruletaNombre">— toca «Girar» —</div>
+        <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+          <button class="btn" id="girar" ${pool.length? '':'disabled'}>Girar</button>
+          <button class="btn ghost" id="reiniciaRuleta">Reiniciar ronda</button>
+        </div>
+        <div id="ruletaAcciones" style="display:none;margin-top:14px">
+          <p style="font-size:.95rem;font-weight:700">Registrar su participación:</p>
+          <div style="display:flex;gap:10px;justify-content:center">
+            <button class="mini s" id="rSimple" style="font-size:.95rem;padding:8px 16px">+ Interacción simple (1 pt)</button>
+            <button class="mini c" id="rCompleja" style="font-size:.95rem;padding:8px 16px">+ Interacción compleja (2 pts)</button>
+          </div>
+        </div>
+        <p class="aula-nota">Interacción simple: responde, identifica, repite lo trabajado. Interacción compleja: relaciona conceptos, argumenta, trae un caso propio o corrige con criterio.</p>
+      </div>`;
+    let elegido = null;
+    cuerpo.querySelector('#girar').onclick = ()=>{
+      if(!pool.length) return;
+      const zona = cuerpo.querySelector('#ruletaNombre');
+      zona.classList.remove('elegido');
+      cuerpo.querySelector('#ruletaAcciones').style.display='none';
+      let n=0;
+      clearInterval(ruletaTimer);
+      ruletaTimer = setInterval(()=>{
+        zona.textContent = pool[Math.floor(Math.random()*pool.length)].nom;
+        n++;
+        if(n>22){
+          clearInterval(ruletaTimer);
+          elegido = pool[Math.floor(Math.random()*pool.length)];
+          zona.textContent = elegido.nom;
+          zona.classList.add('elegido');
+          aula.ruletaUsados.push(elegido.id);
+          guardaAula();
+          cuerpo.querySelector('#ruletaAcciones').style.display='block';
+        }
+      }, 70);
+    };
+    cuerpo.querySelector('#reiniciaRuleta').onclick = ()=>{ aula.ruletaUsados=[]; guardaAula(); pintaAula(); };
+    cuerpo.querySelector('#rSimple').onclick = ()=>{ if(!elegido) return; suma(elegido.id,'s'); pintaAula(); };
+    cuerpo.querySelector('#rCompleja').onclick = ()=>{ if(!elegido) return; suma(elegido.id,'c'); pintaAula(); };
+  }
+  else {
+    const orden = [...ALUMNOS].sort((x,y)=> ptsDe(y.id)-ptsDe(x.id));
+    cuerpo.innerHTML = `
+      <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:10px">
+        <b>Participaciones de hoy</b>
+        <span style="color:var(--azul);font-weight:700">Simple = 1 pt</span>
+        <span style="color:var(--vara);font-weight:700">Compleja = 2 pts</span>
+      </div>
+      ${orden.map(a=>{
+        const p=aula.pts[a.id]||{s:0,c:0};
+        return `<div class="fila-al">
+          <span class="nom">${a.nom}</span>
+          <span style="font-size:.8rem;color:#7A8898">S:${p.s} · C:${p.c}</span>
+          <button class="mini s" data-id="${a.id}" data-t="s">+S</button>
+          <button class="mini c" data-id="${a.id}" data-t="c">+C</button>
+          <button class="mini" data-id="${a.id}" data-t="menos">−</button>
+          <span class="pts">${ptsDe(a.id)} pts</span>
+        </div>`;
+      }).join('')}`;
+    cuerpo.querySelectorAll('.mini[data-t]').forEach(b=> b.onclick=()=>{
+      const id=b.dataset.id, t=b.dataset.t;
+      if(t==='menos'){
+        const p=aula.pts[id]; if(!p) return;
+        if(p.c>0) p.c--; else if(p.s>0) p.s--;
+        guardaAula(); pintaAula(); return;
+      }
+      suma(id,t); pintaAula();
+    });
+  }
+}
+function suma(id,t){ aula.pts[id]=aula.pts[id]||{s:0,c:0}; aula.pts[id][t]++; guardaAula(); }
+
+/* ==================== NAVEGACIÓN ==================== */
+document.addEventListener('keydown', e=>{
+  if(panel.classList.contains('abierto')){
+    if(e.key==='Escape'){ panel.classList.remove('abierto'); clearInterval(ruletaTimer); }
+    return;
+  }
+  if(e.key==='+' || e.key==='='){ zoom+=0.1; aplicaZoom(); return; }
+  if(e.key==='-'){ zoom-=0.1; aplicaZoom(); return; }
+  if(e.key==='ArrowRight' || e.key==='PageDown') ir(1);
+  else if(e.key==='ArrowLeft' || e.key==='PageUp') ir(-1);
+  else if(e.key==='Home'){ i=0; pintar(); }
+  else if(e.key==='End'){ i=S.length-1; pintar(); }
+  else if(['1','2','3','4'].includes(e.key)){
+    const b = slide.querySelector(`.chip[data-k="${+e.key-1}"]`);
+    if(b && !b.disabled) b.click();
+  }
+});
+document.querySelector('.lienzo').addEventListener('click', e=>{
+  if(e.target.closest('button,svg,table,a')) return;
+  ir(e.clientX > window.innerWidth/2 ? 1 : -1);
+});
+pintar();
+</script>
+</body>
+</html>

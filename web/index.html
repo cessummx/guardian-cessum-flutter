@@ -1,0 +1,181 @@
+<!DOCTYPE html><html><head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="/">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="App CESSUM - Portal de estudiantes">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="App CESSUM">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png">
+
+  <title>App CESSUM</title>
+  <link rel="manifest" href="manifest.json">
+  <style id="splash-screen-style">
+    html {
+      height: 100%
+    }
+
+    body {
+      margin: 0;
+      min-height: 100%;
+      background-color: #F5F1E8;
+          background-size: 100% 100%;
+    }
+
+    .center {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      -ms-transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%);
+    }
+
+    .contain {
+      display:block;
+      width:100%; height:100%;
+      object-fit: contain;
+    }
+
+    .stretch {
+      display:block;
+      width:100%; height:100%;
+    }
+
+    .cover {
+      display:block;
+      width:100%; height:100%;
+      object-fit: cover;
+    }
+
+    .bottom {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      -ms-transform: translate(-50%, 0);
+      transform: translate(-50%, 0);
+    }
+
+    .bottomLeft {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+    }
+
+    .bottomRight {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+    }
+  </style>
+  <script id="splash-screen-script">
+    function removeSplashFromWeb() {
+      document.getElementById("splash")?.remove();
+      document.getElementById("splash-branding")?.remove();
+      document.body.style.background = "transparent";
+    }
+  </script>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport">
+</head>
+<body>
+  <picture id="splash">
+      <source srcset="splash/img/light-1x.png 1x, splash/img/light-2x.png 2x, splash/img/light-3x.png 3x, splash/img/light-4x.png 4x" media="(prefers-color-scheme: light)">
+      <source srcset="splash/img/dark-1x.png 1x, splash/img/dark-2x.png 2x, splash/img/dark-3x.png 3x, splash/img/dark-4x.png 4x" media="(prefers-color-scheme: dark)">
+      <img class="center" aria-hidden="true" src="splash/img/light-1x.png" alt="">
+  </picture>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async=""></script>
+  <!-- ===== CESSUM: actualizacion automatica de la app ===== -->
+  <!-- Detecta cuando hay una version nueva publicada (el service worker cambia
+       su huella en cada compilacion) y ofrece actualizar con un toque, sin
+       tener que limpiar el service worker manualmente. -->
+  <script id="cessum-auto-update">
+  (function () {
+    if (!('serviceWorker' in navigator)) return;
+    var mostrado = false;
+
+    function mostrarAviso() {
+      if (mostrado) return;
+      mostrado = true;
+      var b = document.createElement('div');
+      b.id = 'cessum-update-banner';
+      b.style.cssText = 'position:fixed;left:50%;bottom:22px;transform:translateX(-50%);' +
+        'z-index:2147483647;background:#B11D29;color:#fff;padding:12px 16px;border-radius:12px;' +
+        'box-shadow:0 6px 20px rgba(0,0,0,.28);font-family:Montserrat,Segoe UI,sans-serif;' +
+        'font-size:14px;display:flex;align-items:center;gap:14px;max-width:92vw;';
+      var t = document.createElement('span');
+      t.textContent = 'Hay una version nueva de la app.';
+      var btn = document.createElement('button');
+      btn.textContent = 'Actualizar';
+      btn.style.cssText = 'background:#fff;color:#B11D29;border:none;border-radius:8px;' +
+        'padding:8px 14px;font-weight:700;cursor:pointer;font-size:14px;';
+      btn.onclick = forzarActualizacion;
+      b.appendChild(t);
+      b.appendChild(btn);
+      document.body.appendChild(b);
+    }
+
+    async function forzarActualizacion() {
+      try {
+        var regs = await navigator.serviceWorker.getRegistrations();
+        for (var i = 0; i < regs.length; i++) { try { await regs[i].unregister(); } catch (e) {} }
+        if (window.caches) {
+          var keys = await caches.keys();
+          for (var j = 0; j < keys.length; j++) { try { await caches.delete(keys[j]); } catch (e) {} }
+        }
+      } catch (e) {}
+      location.reload();
+    }
+
+    navigator.serviceWorker.ready.then(function (reg) {
+      if (reg.waiting && navigator.serviceWorker.controller) mostrarAviso();
+      reg.addEventListener('updatefound', function () {
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', function () {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) mostrarAviso();
+        });
+      });
+      // Revisa cada 60 s si se publico una version nueva.
+      setInterval(function () { try { reg.update(); } catch (e) {} }, 60000);
+    }).catch(function () {});
+
+    // Cuando el nuevo service worker toma control, recarga una sola vez.
+    var recargando = false;
+    navigator.serviceWorker.addEventListener('controllerchange', function () {
+      if (recargando) return;
+      recargando = true;
+      location.reload();
+    });
+  })();
+  </script>
+
+
+
+</body></html>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <shortcut
+        android:shortcutId="aula_virtual"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_aula_short"
+        android:shortcutLongLabel="@string/shortcut_aula_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="mx.cessum.aula"
+            android:targetClass="mx.cessum.aula.MainActivity">
+            <extra android:name="route" android:value="/aula" />
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="pagos"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_pagos_short"
+        android:shortcutLongLabel="@string/shortcut_pagos_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="mx.cessum.aula"
+            android:targetClass="mx.cessum.aula.MainActivity">
+            <extra android:name="route" android:value="/pagos" />
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <shortcut
+        android:shortcutId="whatsapp_soporte"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_whatsapp_short"
+        android:shortcutLongLabel="@string/shortcut_whatsapp_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="mx.cessum.aula"
+            android:targetClass="mx.cessum.aula.MainActivity">
+            <extra android:name="route" android:value="/whatsapp" />
+        </intent>
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+</shortcuts>

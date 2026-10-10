@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="shortcut_aula_short">Aula</string>
+    <string name="shortcut_aula_long">Aula Virtual</string>
+    <string name="shortcut_pagos_short">Pagos</string>
+    <string name="shortcut_pagos_long">Ver formularios de pago</string>
+    <string name="shortcut_whatsapp_short">WhatsApp</string>
+    <string name="shortcut_whatsapp_long">WhatsApp soporte alumnos</string>
+</resources>
