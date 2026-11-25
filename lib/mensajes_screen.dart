@@ -7,6 +7,7 @@
 // Por qué existe: para dejar de repartir números de celular. La conversación
 // académica queda junto a la materia, con fecha y sin exponer el teléfono de
 // nadie.
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
@@ -19,6 +20,58 @@ import 'auth/session_store.dart';
 
 class MensajesScreen extends StatefulWidget {
   const MensajesScreen({super.key});
+
+  // Una sola consulta en memoria para la cuenta efectiva del menú.
+  static String _cuenta = '';
+  static DateTime? _recibido;
+  static Map<String, dynamic>? _ultimaLista;
+  static Future<Map<String, dynamic>>? _consulta;
+
+  static Future<Map<String, dynamic>> _hilosDe(String correo,
+      {bool actualizar = false}) {
+    final anterior = _consulta;
+    final recibido = _recibido;
+    if (_cuenta == correo && anterior != null &&
+        (recibido == null || (!actualizar &&
+            DateTime.now().difference(recibido) < const Duration(seconds: 30)))) {
+      return anterior;
+    }
+    if (_cuenta != correo) _ultimaLista = null;
+    _cuenta = correo;
+    _recibido = null;
+    late final Future<Map<String, dynamic>> solicitud;
+    solicitud = _pedirHilos(correo).then((datos) {
+      if (identical(_consulta, solicitud)) {
+        _ultimaLista = datos;
+        _recibido = DateTime.now();
+      }
+      if (datos['hilos'] is! List) throw const FormatException('Faltan los hilos');
+    return datos;
+    }).whenComplete(() {
+      if (identical(_consulta, solicitud) && _recibido == null) _consulta = null;
+    });
+    return _consulta = solicitud;
+  }
+
+  static Future<Map<String, dynamic>> _pedirHilos(String correo) async {
+    final uri = Uri.parse(guardianUrl).replace(queryParameters: {
+      'accion': 'mensajes_hilos',
+      'correo': correo,
+    });
+    final resp = await http.get(uri).timeout(const Duration(seconds: 60));
+    final datos = jsonDecode(resp.body) as Map<String, dynamic>;
+    if (datos['ok'] != true) throw Exception(datos['error'] ?? 'Error');
+    return datos;
+  }
+
+  static Future<void> preparar() async {
+    try {
+      final correo = await SessionStore.validEmail();
+      if (correo != null && correo.isNotEmpty) await _hilosDe(correo);
+    } catch (_) {
+      // Al abrir el chat se reintenta si la precarga falló.
+    }
+  }
 
   @override
   State<MensajesScreen> createState() => _MensajesScreenState();
@@ -35,30 +88,32 @@ class _MensajesScreenState extends State<MensajesScreen> {
   @override
   void initState() {
     super.initState();
-    _cargar();
+    _cargar(actualizar: false);
   }
 
-  Future<void> _cargar() async {
+  Future<void> _cargar({bool actualizar = true}) async {
     setState(() {
       _cargando = true;
       _error = null;
     });
     try {
       final c = (await SessionStore.validEmail()) ?? '';
-      final uri = Uri.parse(guardianUrl).replace(queryParameters: {
-        'accion': 'mensajes_hilos',
-        'correo': c,
-      });
-      final resp = await http.get(uri).timeout(const Duration(seconds: 60));
-      final d = jsonDecode(resp.body) as Map<String, dynamic>;
-      if (d['ok'] != true) throw Exception(d['error'] ?? 'Error');
+      if (c.isEmpty) {
+        _correo = '';
+        _hilos = [];
+        throw StateError('Falta la sesión');
+      }
+      if (!mounted) return;
+      if (_correo != c) {
+        _correo = '';
+        _hilos = [];
+      }
+      final previa = MensajesScreen._cuenta == c ? MensajesScreen._ultimaLista : null;
+      if (previa != null) setState(() => _mostrar(c, previa));
+      final d = await MensajesScreen._hilosDe(c, actualizar: actualizar);
       if (!mounted) return;
       setState(() {
-        _correo = c;
-        _rol = '${d['rol'] ?? ''}';
-        _hilos = ((d['hilos'] as List?) ?? [])
-            .map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
+        _mostrar(c, d);
         _cargando = false;
       });
     } catch (_) {
@@ -68,6 +123,14 @@ class _MensajesScreenState extends State<MensajesScreen> {
         _error = 'No se pudieron cargar tus conversaciones.';
       });
     }
+  }
+
+  void _mostrar(String correo, Map<String, dynamic> datos) {
+    _hilos = (datos['hilos'] as List)
+        .map((e) => Map<String, dynamic>.from(e as Map))
+        .toList();
+    _correo = correo;
+    _rol = '${datos['rol'] ?? ''}';
   }
 
   static String _n(String s) {
@@ -108,9 +171,9 @@ class _MensajesScreenState extends State<MensajesScreen> {
           ),
         ],
       ),
-      body: _cargando
+      body: _cargando && _correo.isEmpty
           ? const Center(child: CircularProgressIndicator(color: cessumRed))
-          : _error != null
+          : _error != null && _correo.isEmpty
               ? Center(
                   child: Column(mainAxisSize: MainAxisSize.min, children: [
                     Text(_error!),
@@ -120,6 +183,9 @@ class _MensajesScreenState extends State<MensajesScreen> {
                   ]),
                 )
               : Column(children: [
+                  if (_cargando) const LinearProgressIndicator(),
+                  if (_error != null)
+                    TextButton(onPressed: _cargar, child: const Text('No se pudo actualizar. Reintentar')),
                   Container(
                     width: double.infinity,
                     padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
@@ -369,7 +435,7 @@ class _MensajesScreenState extends State<MensajesScreen> {
         builder: (_) => _HiloScreen(correo: _correo, hilo: h),
       ),
     );
-    _cargar();
+    if (mounted) _cargar();
   }
 }
 
@@ -428,6 +494,9 @@ class _HiloScreenState extends State<_HiloScreen> {
   List<Map<String, dynamic>> _msjs = [];
   bool _cargando = true;
   bool _enviando = false;
+  bool _historialDisponible = false;
+  bool _errorHistorial = false;
+  int _solicitudHistorial = 0;
   /// Guía institucional de respuesta. Solo llega cuando toca responderle a un
   /// alumno; el backend decide cuándo y con qué tema.
   Map<String, dynamic>? _sugerencias;
@@ -447,7 +516,7 @@ class _HiloScreenState extends State<_HiloScreen> {
     ['general', 'Duda general del curso'],
     ['otro', 'Otro asunto'],
   ];
-  bool get _esPrimero => _msjs.isEmpty;
+  bool get _esPrimero => _historialDisponible && _msjs.isEmpty;
 
   @override
   void initState() {
@@ -463,6 +532,11 @@ class _HiloScreenState extends State<_HiloScreen> {
   }
 
   Future<void> _cargar() async {
+    final solicitud = ++_solicitudHistorial;
+    setState(() {
+      _cargando = true;
+      _errorHistorial = false;
+    });
     try {
       final uri = Uri.parse(guardianUrl).replace(queryParameters: {
         'accion': 'mensajes_listar',
@@ -471,26 +545,41 @@ class _HiloScreenState extends State<_HiloScreen> {
       });
       final resp = await http.get(uri).timeout(const Duration(seconds: 60));
       final d = jsonDecode(resp.body) as Map<String, dynamic>;
-      if (!mounted) return;
+      if (!mounted || solicitud != _solicitudHistorial) return;
+      if (resp.statusCode != 200 || d['ok'] == false || d['mensajes'] is! List) {
+        throw const FormatException('Historial no disponible');
+      }
+      final mensajes = (d['mensajes'] as List)
+          .map((e) => Map<String, dynamic>.from(e as Map))
+          .toList();
       setState(() {
-        _msjs = ((d['mensajes'] as List?) ?? [])
-            .map((e) => Map<String, dynamic>.from(e as Map))
-            .toList();
+        _msjs = mensajes;
+        _historialDisponible = true;
         _sugerencias = (d['sugerencias'] is Map)
             ? Map<String, dynamic>.from(d['sugerencias'] as Map)
             : null;
         _cargando = false;
       });
       _alFinal();
-      // Se marcan como leídos al abrir: eso es también lo que evita que el
-      // disparador mande un correo por algo que ya se leyó.
+      if (mensajes.isNotEmpty) unawaited(_marcarLeidos());
+    } catch (_) {
+      if (!mounted || solicitud != _solicitudHistorial) return;
+      setState(() {
+        _cargando = false;
+        _errorHistorial = true;
+      });
+    }
+  }
+
+  Future<void> _marcarLeidos() async {
+    try {
       await http.get(Uri.parse(guardianUrl).replace(queryParameters: {
         'accion': 'mensajes_leidos',
         'correo': widget.correo,
         'hilo': '${widget.hilo['hilo']}',
       })).timeout(const Duration(seconds: 30));
     } catch (_) {
-      if (mounted) setState(() => _cargando = false);
+      // La siguiente apertura vuelve a intentar la confirmación de lectura.
     }
   }
 
@@ -503,8 +592,9 @@ class _HiloScreenState extends State<_HiloScreen> {
   }
 
   Future<void> _enviar() async {
-    final texto = _ctrl.text.trim();
-    if (texto.isEmpty) return;
+    final borrador = _ctrl.text;
+    final texto = borrador.trim();
+    if (texto.isEmpty || _enviando || !_historialDisponible) return;
     setState(() => _enviando = true);
     try {
       final uri = Uri.parse(guardianUrl).replace(queryParameters: {
@@ -519,8 +609,12 @@ class _HiloScreenState extends State<_HiloScreen> {
       final d = jsonDecode(resp.body) as Map<String, dynamic>;
       if (!mounted) return;
       if (d['ok'] == true) {
-        _ctrl.clear();
-        await _cargar();
+        if (_ctrl.text == borrador) _ctrl.clear();
+        setState(() {
+          _msjs = [..._msjs, {'mio': true, 'texto': texto, 'fecha': ''}];
+        });
+        _alFinal();
+        unawaited(_cargar());
       } else {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             backgroundColor: cessumRed,
@@ -553,10 +647,18 @@ class _HiloScreenState extends State<_HiloScreen> {
         ),
       ),
       body: Column(children: [
+        if (_errorHistorial)
+          TextButton.icon(
+            onPressed: _cargar,
+            icon: const Icon(Icons.refresh),
+            label: const Text('No se pudo cargar el historial. Reintentar'),
+          ),
         Expanded(
-          child: _cargando
+          child: _cargando && !_historialDisponible
               ? const Center(child: CircularProgressIndicator(color: cessumRed))
-              : _msjs.isEmpty
+              : !_historialDisponible
+                  ? const SizedBox.shrink()
+                  : _msjs.isEmpty
                   ? Center(
                       child: Padding(
                         padding: const EdgeInsets.all(28),
@@ -714,7 +816,7 @@ class _HiloScreenState extends State<_HiloScreen> {
               ),
               IconButton.filled(
                 style: IconButton.styleFrom(backgroundColor: cessumRed),
-                onPressed: _enviando ? null : _enviar,
+                onPressed: _enviando || !_historialDisponible ? null : _enviar,
                 icon: _enviando
                     ? const SizedBox(
                         width: 18,

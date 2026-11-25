@@ -663,6 +663,7 @@ class _MenuScreenState extends State<MenuScreen> {
     super.initState();
     _cargarTodo();
     _revisarCuenta();
+    MensajesScreen.preparar();
     // (ago-19) REGISTRAR LA ENTRADA. Esto faltaba.
     //
     // AccesoService existía y no lo llamaba nadie: la hoja Accesos se llenaba
